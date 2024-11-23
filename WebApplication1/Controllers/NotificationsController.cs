@@ -63,28 +63,5 @@ namespace WebApplication1.Controllers
 
         #endregion
 
-
-        #region Helper methods
-        public IHttpActionResult GetAllNotificationsNames() {
-            var notificationsNames = new List<string>();
-            try {
-                using (var conn = new SqlConnection(connectionString)) {
-                    conn.Open();
-                    using (var command = new SqlCommand("SELECT name FROM notifications ORDER BY name", conn))
-                    using (var reader = command.ExecuteReader()) {
-                        while (reader.Read()) {
-                            notificationsNames.Add((string)reader["name"]);
-                        }
-                    }
-                }
-            }
-            catch (Exception) {
-                return InternalServerError();
-            }
-
-            return Ok(notificationsNames);
-        }
-
-        #endregion
     }
 }

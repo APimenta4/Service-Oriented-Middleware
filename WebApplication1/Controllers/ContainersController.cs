@@ -59,26 +59,5 @@ namespace WebApplication1.Controllers
         #endregion
 
 
-        #region Helper methods
-        public IHttpActionResult GetAllContainersNames() {
-            var containersNames = new List<string>();
-            try {
-                using (var conn = new SqlConnection(connectionString)) {
-                    conn.Open();
-                    using (var command = new SqlCommand("SELECT name FROM containers ORDER BY name", conn))
-                    using (var reader = command.ExecuteReader()) {
-                        while (reader.Read()) {
-                            containersNames.Add((string)reader["name"]);
-                        }
-                    }
-                }
-            }
-            catch (Exception) {
-                return InternalServerError();
-            }
-
-            return Ok(containersNames);
-        }
-        #endregion
     }
 }

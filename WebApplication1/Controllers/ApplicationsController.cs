@@ -29,16 +29,13 @@ namespace WebApplication1.Controllers {
                 case "applications":
                     return GetAllApplicationsNames();
                 case "containers":
-                    ContainersController ContainersController = new ContainersController();
-                    return ContainersController.GetAllContainersNames();
+                    return GetAllContainersNames();
                 case "records":
-                    RecordsController RecordsController = new RecordsController();
-                    return RecordsController.GetAllRecordsNames();
+                    return GetAllRecordsNames();
                 case "notifications":
-                    NotificationsController NotificationsController = new NotificationsController();
-                    return NotificationsController.GetAllNotificationsNames();
+                    return GetAllNotificationsNames();
                 default:
-                    throw new HttpResponseException(System.Net.HttpStatusCode.InternalServerError);
+                    return Ok("Unsuported resource type.");
 
             }
 
@@ -103,6 +100,66 @@ namespace WebApplication1.Controllers {
             }
 
             return Ok(applicationsNames);
+        }
+
+        public IHttpActionResult GetAllContainersNames() {
+            var containersNames = new List<string>();
+            try {
+                using (var conn = new SqlConnection(connectionString)) {
+                    conn.Open();
+                    using (var command = new SqlCommand("SELECT name FROM containers ORDER BY name", conn))
+                    using (var reader = command.ExecuteReader()) {
+                        while (reader.Read()) {
+                            containersNames.Add((string)reader["name"]);
+                        }
+                    }
+                }
+            }
+            catch (Exception) {
+                return InternalServerError();
+            }
+
+            return Ok(containersNames);
+        }
+
+        public IHttpActionResult GetAllNotificationsNames() {
+            var notificationsNames = new List<string>();
+            try {
+                using (var conn = new SqlConnection(connectionString)) {
+                    conn.Open();
+                    using (var command = new SqlCommand("SELECT name FROM notifications ORDER BY name", conn))
+                    using (var reader = command.ExecuteReader()) {
+                        while (reader.Read()) {
+                            notificationsNames.Add((string)reader["name"]);
+                        }
+                    }
+                }
+            }
+            catch (Exception) {
+                return InternalServerError();
+            }
+
+            return Ok(notificationsNames);
+        }
+
+        public IHttpActionResult GetAllRecordsNames() {
+            var recordsNames = new List<string>();
+            try {
+                using (var conn = new SqlConnection(connectionString)) {
+                    conn.Open();
+                    using (var command = new SqlCommand("SELECT name FROM records ORDER BY name", conn))
+                    using (var reader = command.ExecuteReader()) {
+                        while (reader.Read()) {
+                            recordsNames.Add((string)reader["name"]);
+                        }
+                    }
+                }
+            }
+            catch (Exception) {
+                return InternalServerError();
+            }
+
+            return Ok(recordsNames);
         }
 
         #endregion

@@ -63,29 +63,6 @@ namespace WebApplication1.Controllers
 
         #endregion
 
-        #region Helper methods
-
-        public IHttpActionResult GetAllRecordsNames() {
-            var recordsNames = new List<string>();
-            try {
-                using (var conn = new SqlConnection(connectionString)) {
-                    conn.Open();
-                    using (var command = new SqlCommand("SELECT name FROM records ORDER BY name", conn))
-                    using (var reader = command.ExecuteReader()) {
-                        while (reader.Read()) {
-                            recordsNames.Add((string)reader["name"]);
-                        }
-                    }
-                }
-            }
-            catch (Exception) {
-                return InternalServerError();
-            }
-
-            return Ok(recordsNames); // Return the list of record names
-        }
-
-        #endregion
 
     }
 
