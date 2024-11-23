@@ -16,7 +16,7 @@ namespace WebApplication1.Controllers
 
         #region GETs
         [HttpGet]
-        [Route("api/somiod/{applicationName}/{containerName}/notification/{notificationName}")]
+        [Route("api/somiod/{applicationName}/{containerName}/notif/{notificationName}")]
         public IHttpActionResult GetNotificationByApplicationContainerAndName(string applicationName, string containerName, string notificationName) {
             Notification notification = null;
             try {
