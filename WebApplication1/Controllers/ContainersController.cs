@@ -16,10 +16,15 @@ namespace WebApplication1.Controllers
 
         #region GETs
 
-
         [HttpGet]
         [Route("api/somiod/{applicationName}/container/{containerName}")]
         public IHttpActionResult GetContainerByApplicationAndName(string applicationName, string containerName) {
+
+            // Get resouces using header "somiod-locate: <resouce>"
+            if (Request.Headers.Contains("somiod-locate")) {
+                return GetResourcesByHeader(applicationName, containerName);
+            }
+
             Container container = null;
             try {
                 using (var conn = new SqlConnection(connectionString)) {
@@ -58,6 +63,84 @@ namespace WebApplication1.Controllers
 
         #endregion
 
+        #region Helper methods
 
+        public IHttpActionResult GetResourcesByHeader(string applicationName, string containerName) {
+            var headerType = Request.Headers.GetValues("somiod-locate").First();
+
+            switch (headerType) {
+                case "records":
+                    return GetAllRecordsNames(applicationName, containerName);
+                case "notifications":
+                    return GetAllNotificationsNames(applicationName, containerName);
+                default:
+                    return Ok("Unsuported resource type.");
+            }
+        }
+
+        public IHttpActionResult GetAllNotificationsNames(string applicationName, string containerName) {
+            var notificationsNames = new List<string>();
+            try {
+                using (var conn = new SqlConnection(connectionString)) {
+                    conn.Open();
+                    using (var command = new SqlCommand(
+                        "SELECT n.name FROM notifications n " +
+                        "JOIN containers c ON n.parent = c.id " +
+                        "JOIN applications a ON c.parent = a.id " +
+                        "WHERE a.name = @applicationName " +
+                        "AND c.name = @containerName " +
+                        "ORDER BY n.name", conn)) {
+
+                        command.Parameters.AddWithValue("@applicationName", applicationName);
+                        command.Parameters.AddWithValue("@containerName", containerName);
+
+                        using (var reader = command.ExecuteReader()) {
+                            while (reader.Read()) {
+                                notificationsNames.Add((string)reader["name"]);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception) {
+                return InternalServerError();
+            }
+
+            return Ok(notificationsNames);
+        }
+
+        public IHttpActionResult GetAllRecordsNames(string applicationName, string containerName) {
+            var recordsNames = new List<string>();
+            try {
+                using (var conn = new SqlConnection(connectionString)) {
+                    conn.Open();
+                    using (var command = new SqlCommand(
+                        "SELECT r.name FROM records r " +
+                        "JOIN containers c ON r.parent = c.id " +
+                        "JOIN applications a ON c.parent = a.id " +
+                        "WHERE a.name = @applicationName " +
+                        "AND c.name = @containerName " +
+                        "ORDER BY r.name", conn)) {
+
+                        command.Parameters.AddWithValue("@applicationName", applicationName);
+                        command.Parameters.AddWithValue("@containerName", containerName);
+
+                        using (var reader = command.ExecuteReader()) {
+                            while (reader.Read()) {
+                                recordsNames.Add((string)reader["name"]);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception) {
+                return InternalServerError();
+            }
+
+            return Ok(recordsNames);
+        }
+
+
+        #endregion
     }
 }
