@@ -1,6 +1,6 @@
 Todo list
 
--Application
+-------Application
 
   Post
   
@@ -8,7 +8,7 @@ Todo list
   
   Delete
   
--Container
+-------Container
 
   Post
   
@@ -16,18 +16,18 @@ Todo list
   
   Delete
   
--Record
+-------Record
 
   Post
   
   Delete
   
--Notification
+-------Notification
 
   Post
   Delete
 
-Passar a XML
+Passar objetos por XML
 Meter notifcações a dar (http e mqtt)
 
 Desenvolver aplicação #1
