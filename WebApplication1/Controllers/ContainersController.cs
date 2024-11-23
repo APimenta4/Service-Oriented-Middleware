@@ -16,34 +16,69 @@ namespace WebApplication1.Controllers
 
         #region GETs
 
-        [Route("api/somiod/containers")]
-        public IEnumerable<Container> GetAllContainers() {
 
-            var containers = new List<Container>();
+        [HttpGet]
+        [Route("api/somiod/{applicationName}/container/{containerName}")]
+        public IHttpActionResult GetContainerByApplicationAndName(string applicationName, string containerName) {
+            Container container = null;
             try {
                 using (var conn = new SqlConnection(connectionString)) {
                     conn.Open();
-                    using (var command = new SqlCommand("SELECT * FROM containers ORDER BY ID", conn))
-                    using (var reader = command.ExecuteReader()) {
-                        while (reader.Read()) {
-                            var container = new Container {
-                                id = (int)reader["id"],
-                                name = (string)reader["name"],
-                                creation_datetime = (DateTime)reader["creation_datetime"],
-                                parent = (int)reader["parent"]
-                            };
-                            containers.Add(container);
+                    using (var command = new SqlCommand(
+                        "SELECT c.* FROM containers c " +
+                        "JOIN applications a ON c.parent = a.id " +
+                        "WHERE a.name = @applicationName " +
+                        "AND c.name = @containerName", conn)) {
+                        command.Parameters.AddWithValue("@applicationName", applicationName);
+                        command.Parameters.AddWithValue("@containerName", containerName);
+
+                        using (var reader = command.ExecuteReader()) {
+                            if (reader.Read()) {
+                                container = new Container {
+                                    id = (int)reader["id"],
+                                    name = (string)reader["name"],
+                                    creation_datetime = (DateTime)reader["creation_datetime"],
+                                    parent = (int)reader["parent"]
+                                };
+                            }
                         }
                     }
                 }
+
+                if (container == null) {
+                    return NotFound(); 
+                }
+
+                return Ok(container); 
             }
-            catch (Exception ex) {
-                throw new HttpResponseException(System.Net.HttpStatusCode.InternalServerError);
+            catch (Exception) {
+                return InternalServerError(); 
             }
-            return containers;
         }
 
         #endregion
 
+
+        #region Helper methods
+        public IHttpActionResult GetAllContainersNames() {
+            var containersNames = new List<string>();
+            try {
+                using (var conn = new SqlConnection(connectionString)) {
+                    conn.Open();
+                    using (var command = new SqlCommand("SELECT name FROM containers ORDER BY name", conn))
+                    using (var reader = command.ExecuteReader()) {
+                        while (reader.Read()) {
+                            containersNames.Add((string)reader["name"]);
+                        }
+                    }
+                }
+            }
+            catch (Exception) {
+                return InternalServerError();
+            }
+
+            return Ok(containersNames);
+        }
+        #endregion
     }
 }

@@ -15,38 +15,76 @@ namespace WebApplication1.Controllers
         SqlConnection conn = null;
 
         #region GETs
-
-        [Route("api/somiod/notifications")]
-        public IEnumerable<Notification> GetAllNotifications() {
-
-            var notifications = new List<Notification>();
+        [HttpGet]
+        [Route("api/somiod/{applicationName}/{containerName}/notification/{notificationName}")]
+        public IHttpActionResult GetNotificationByApplicationContainerAndName(string applicationName, string containerName, string notificationName) {
+            Notification notification = null;
             try {
                 using (var conn = new SqlConnection(connectionString)) {
                     conn.Open();
-                    using (var command = new SqlCommand("SELECT * FROM notifications ORDER BY id", conn))
+                    using (var command = new SqlCommand(
+                        "SELECT n.* FROM notifications n " +
+                        "JOIN containers c ON n.parent = c.id " +
+                        "JOIN applications a ON c.parent = a.id " +
+                        "WHERE a.name = @applicationName " +
+                        "AND c.name = @containerName " +
+                        "AND n.name = @notificationName", conn)) {
+                        command.Parameters.AddWithValue("@applicationName", applicationName);
+                        command.Parameters.AddWithValue("@containerName", containerName);
+                        command.Parameters.AddWithValue("@notificationName", notificationName);
+
+                        using (var reader = command.ExecuteReader()) {
+                            if (reader.Read()) {
+                                notification = new Notification {
+                                    id = (int)reader["id"],
+                                    name = (string)reader["name"],
+                                    creation_datetime = (DateTime)reader["creation_datetime"],
+                                    parent = (int)reader["parent"],
+                                    Event = (string)reader["Event"],
+                                    endpoint = (string)reader["endpoint"],
+                                    enabled = (bool)reader["enabled"]
+                                };
+                            }
+                        }
+                    }
+                }
+
+                if (notification == null) {
+                    return NotFound(); 
+                }
+
+                return Ok(notification); 
+            }
+            catch (Exception) {
+                return InternalServerError(); 
+            }
+        }
+
+
+        #endregion
+
+
+        #region Helper methods
+        public IHttpActionResult GetAllNotificationsNames() {
+            var notificationsNames = new List<string>();
+            try {
+                using (var conn = new SqlConnection(connectionString)) {
+                    conn.Open();
+                    using (var command = new SqlCommand("SELECT name FROM notifications ORDER BY name", conn))
                     using (var reader = command.ExecuteReader()) {
                         while (reader.Read()) {
-                            var notification = new Notification {
-                                id = (int)reader["id"],
-                                name = (string)reader["name"],
-                                creation_datetime = (DateTime)reader["creation_datetime"],
-                                parent = (int)reader["parent"],
-                                Event = (string)reader["Event"], 
-                                endpoint = (string)reader["endpoint"],
-                                enabled = (bool)reader["enabled"]
-                            };
-                            notifications.Add(notification);
+                            notificationsNames.Add((string)reader["name"]);
                         }
                     }
                 }
             }
-            catch (Exception ex) {
-                throw new HttpResponseException(System.Net.HttpStatusCode.InternalServerError);
+            catch (Exception) {
+                return InternalServerError();
             }
-            return notifications;
+
+            return Ok(notificationsNames);
         }
 
         #endregion
-
     }
 }
