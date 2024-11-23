@@ -1,0 +1,12 @@
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Lighting\bin\Debug\Lighting.exe.config
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Lighting\bin\Debug\Lighting.exe
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Lighting\bin\Debug\Lighting.pdb
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Lighting\obj\Debug\Lighting.csproj.AssemblyReference.cache
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Lighting\obj\Debug\Lighting.Form1.resources
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Lighting\obj\Debug\Lighting.Properties.Resources.resources
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Lighting\obj\Debug\Lighting.csproj.GenerateResource.cache
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Lighting\obj\Debug\Lighting.csproj.CoreCompileInputs.cache
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Lighting\obj\Debug\Lighting.exe
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Lighting\obj\Debug\Lighting.pdb
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Lighting\bin\Debug\OFF.jpg
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Lighting\bin\Debug\ON.jpg
