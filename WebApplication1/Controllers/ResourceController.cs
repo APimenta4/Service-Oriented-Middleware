@@ -5,67 +5,28 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using WebApplication1.Models;
 
-namespace WebApplication1.Controllers {
-    public class ApplicationsController : ApiController {
-
+namespace WebApplication1.Controllers
+{
+    public class ResourceController : ApiController
+    {
         readonly string connectionString = WebApplication1.WebApiApplication.connectionString;
         SqlConnection conn = null;
 
-
-        #region GETs
-
+        // Get resouces using header "somiod-locate: <resouce>"
         [HttpGet]
-        [Route("api/somiod/{applicationName}")]
-        public IHttpActionResult GetApplication(string applicationName) {
-
-            // Get resouces using header "somiod-locate: <resouce>"
-            if (Request.Headers.Contains("somiod-locate")) {
-                return GetResourcesByHeader();
-            }
-
-            Application application = null;
-            try {
-                using (var conn = new SqlConnection(connectionString)) {
-                    conn.Open();
-                    using (var command = new SqlCommand("SELECT * FROM applications WHERE name = @applicationName", conn)) {
-                        command.Parameters.AddWithValue("@applicationName", applicationName);
-
-                        using (var reader = command.ExecuteReader()) {
-                            if (reader.Read()) {
-                                application = new Application {
-                                    id = (int)reader["id"],
-                                    name = (string)reader["name"],
-                                    creation_datetime = (DateTime)reader["creation_datetime"]
-                                };
-                            }
-                        }
-                    }
-                }
-
-                if (application == null) {
-                    return NotFound();
-                }
-
-                return Ok(application); 
-            }
-            catch (Exception) {
-                return InternalServerError(); 
-            }
-        }
-
-
-        #endregion
-
-
-        #region Helper methods
-
-
+        [Route("api/somiod")]
         public IHttpActionResult GetResourcesByHeader() {
+
+            if (!Request.Headers.Contains("somiod-locate")) {
+                return Ok("No 'somiod-locate' header found.");
+            }
+
             var headerType = Request.Headers.GetValues("somiod-locate").First();
 
             switch (headerType) {
+                case "applications":
+                    return GetAllApplicationsNames();
                 case "containers":
                     return GetAllContainersNames();
                 case "records":
@@ -74,9 +35,31 @@ namespace WebApplication1.Controllers {
                     return GetAllNotificationsNames();
                 default:
                     return Ok("Unsuported resource type.");
+
             }
+
         }
 
+        #region Helper methods
+        public IHttpActionResult GetAllApplicationsNames() {
+            var applicationsNames = new List<string>();
+            try {
+                using (var conn = new SqlConnection(connectionString)) {
+                    conn.Open();
+                    using (var command = new SqlCommand("SELECT name FROM applications ORDER BY name", conn))
+                    using (var reader = command.ExecuteReader()) {
+                        while (reader.Read()) {
+                            applicationsNames.Add((string)reader["name"]);
+                        }
+                    }
+                }
+            }
+            catch (Exception) {
+                throw new HttpResponseException(System.Net.HttpStatusCode.InternalServerError);
+            }
+
+            return Ok(applicationsNames);
+        }
 
         public IHttpActionResult GetAllContainersNames() {
             var containersNames = new List<string>();
@@ -139,8 +122,6 @@ namespace WebApplication1.Controllers {
         }
 
         #endregion
-
-
 
     }
 }

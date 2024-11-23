@@ -5,7 +5,11 @@ meta {
 }
 
 get {
-  url: localhost:52653/api/somiod
+  url: http://localhost:52653/api/somiod/Application4
   body: none
   auth: none
+}
+
+headers {
+  somiod-locate: applications
 }
