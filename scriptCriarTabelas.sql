@@ -1,10 +1,10 @@
-﻿CREATE TABLE application (
+﻿CREATE TABLE applications (
     id INT PRIMARY KEY IDENTITY(1,1),
     name NVARCHAR(255) NOT NULL,
     creation_datetime DATETIME2 NOT NULL
 );
 
-CREATE TABLE container (
+CREATE TABLE containers (
     id INT PRIMARY KEY IDENTITY(1,1),
     name NVARCHAR(255) NOT NULL,
     creation_datetime DATETIME2 NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE container (
     FOREIGN KEY (parent) REFERENCES application(id)
 );
 
-CREATE TABLE record (
+CREATE TABLE records (
     id INT PRIMARY KEY IDENTITY(1,1),
     name NVARCHAR(255) NOT NULL,
     content NVARCHAR(1023) NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE record (
     FOREIGN KEY (parent) REFERENCES container(id)
 );
 
-CREATE TABLE notification (
+CREATE TABLE notifications (
     id INT PRIMARY KEY IDENTITY(1,1),
     name NVARCHAR(255) NOT NULL,
     creation_datetime DATETIME2 NOT NULL,

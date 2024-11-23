@@ -14,7 +14,7 @@ namespace WebApplication1.Controllers {
         SqlConnection conn = null;
 
 
-        #region
+        #region GETs
 
 
         [Route("api/somiod/applications")]
@@ -44,7 +44,7 @@ namespace WebApplication1.Controllers {
         }
 
 
-
+        #endregion
 
     }
 }
