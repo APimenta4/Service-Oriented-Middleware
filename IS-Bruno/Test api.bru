@@ -5,11 +5,12 @@ meta {
 }
 
 get {
-  url: http://localhost:52653/api/somiod/Application4
+  url: http://localhost:52653/api/somiod/NomeBrutal/container/Container1
   body: none
   auth: none
 }
 
 headers {
-  somiod-locate: applications
+  ~somiod-locate: records
+  ~Accept: application/xml
 }

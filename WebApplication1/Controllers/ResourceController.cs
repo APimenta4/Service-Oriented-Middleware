@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using WebApplication1.Models;
 
 namespace WebApplication1.Controllers
 {
@@ -39,6 +40,35 @@ namespace WebApplication1.Controllers
             }
 
         }
+
+        #region POSTs
+
+        [HttpPost]
+        [Route("api/somiod")]
+        public IHttpActionResult PostApplication(HttpRequestMessage request) {
+
+            // Não sei como fazer esta parte de ler o xml
+            // newApplication = ????
+
+            try {
+                using (var connection = new SqlConnection(connectionString)) {
+                    connection.Open();
+                    using (var command = new SqlCommand("INSERT INTO Application (name, creation_datetime) VALUES (@name, @creation_datetime)", connection)) {
+                        command.Parameters.AddWithValue("@name", newApplication.name);
+                        command.Parameters.AddWithValue("@creation_datetime", DateTime.Now);
+                        command.ExecuteNonQuery();
+                    }
+                }
+
+                return Ok();
+            }
+            catch (Exception) {
+                return InternalServerError();
+            }
+        }
+
+
+        #endregion
 
         #region Helper methods
         public IHttpActionResult GetAllApplicationsNames() {

@@ -48,15 +48,17 @@ namespace WebApplication1.Controllers {
                     return NotFound();
                 }
 
-                return Ok(application); 
+                return Ok(application);
             }
             catch (Exception) {
-                return InternalServerError(); 
+                return InternalServerError();
             }
         }
 
 
         #endregion
+
+
 
 
         #region Helper methods
