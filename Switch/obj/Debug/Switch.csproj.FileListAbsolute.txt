@@ -1,0 +1,10 @@
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Switch\bin\Debug\Switch.exe.config
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Switch\bin\Debug\Switch.exe
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Switch\bin\Debug\Switch.pdb
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Switch\obj\Debug\Switch.csproj.AssemblyReference.cache
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Switch\obj\Debug\Switch.Form1.resources
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Switch\obj\Debug\Switch.Properties.Resources.resources
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Switch\obj\Debug\Switch.csproj.GenerateResource.cache
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Switch\obj\Debug\Switch.csproj.CoreCompileInputs.cache
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Switch\obj\Debug\Switch.exe
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Switch\obj\Debug\Switch.pdb

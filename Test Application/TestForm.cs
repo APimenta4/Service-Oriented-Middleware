@@ -11,8 +11,8 @@ using System.Windows.Forms;
 using System.Xml;
 
 namespace Test_Application {
-    public partial class Form1 : Form {
-        public Form1() {
+    public partial class TestForm : Form {
+        public TestForm() {
             InitializeComponent();
             comboBoxHeaderValue.Items.Add("application");
             comboBoxHeaderValue.Items.Add("container");

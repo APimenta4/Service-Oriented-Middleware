@@ -1,5 +1,5 @@
 ﻿namespace Switch {
-    partial class Form1 {
+    partial class SwitchForm {
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -24,8 +24,8 @@
         /// </summary>
         private void InitializeComponent() {
             this.label1 = new System.Windows.Forms.Label();
-            this.btn_on = new System.Windows.Forms.Button();
-            this.btn_off = new System.Windows.Forms.Button();
+            this.btnOn = new System.Windows.Forms.Button();
+            this.btnOff = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -38,33 +38,35 @@
             this.label1.TabIndex = 1;
             this.label1.Text = "Switch";
             // 
-            // btn_on
+            // btnOn
             // 
-            this.btn_on.Font = new System.Drawing.Font("Yu Gothic Medium", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_on.Location = new System.Drawing.Point(93, 282);
-            this.btn_on.Name = "btn_on";
-            this.btn_on.Size = new System.Drawing.Size(200, 100);
-            this.btn_on.TabIndex = 2;
-            this.btn_on.Text = "ON";
-            this.btn_on.UseVisualStyleBackColor = true;
+            this.btnOn.Font = new System.Drawing.Font("Yu Gothic Medium", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnOn.Location = new System.Drawing.Point(93, 282);
+            this.btnOn.Name = "btnOn";
+            this.btnOn.Size = new System.Drawing.Size(200, 100);
+            this.btnOn.TabIndex = 2;
+            this.btnOn.Text = "ON";
+            this.btnOn.UseVisualStyleBackColor = true;
+            this.btnOn.Click += new System.EventHandler(this.btnOnClick);
             // 
-            // btn_off
+            // btnOff
             // 
-            this.btn_off.Font = new System.Drawing.Font("Yu Gothic Medium", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_off.Location = new System.Drawing.Point(93, 176);
-            this.btn_off.Name = "btn_off";
-            this.btn_off.Size = new System.Drawing.Size(200, 100);
-            this.btn_off.TabIndex = 3;
-            this.btn_off.Text = "OFF";
-            this.btn_off.UseVisualStyleBackColor = true;
+            this.btnOff.Font = new System.Drawing.Font("Yu Gothic Medium", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnOff.Location = new System.Drawing.Point(93, 176);
+            this.btnOff.Name = "btnOff";
+            this.btnOff.Size = new System.Drawing.Size(200, 100);
+            this.btnOff.TabIndex = 3;
+            this.btnOff.Text = "OFF";
+            this.btnOff.UseVisualStyleBackColor = true;
+            this.btnOff.Click += new System.EventHandler(this.btnOffClick);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(413, 545);
-            this.Controls.Add(this.btn_off);
-            this.Controls.Add(this.btn_on);
+            this.Controls.Add(this.btnOff);
+            this.Controls.Add(this.btnOn);
             this.Controls.Add(this.label1);
             this.Name = "Form1";
             this.Text = "Form1";
@@ -76,8 +78,8 @@
         #endregion
 
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button btn_on;
-        private System.Windows.Forms.Button btn_off;
+        private System.Windows.Forms.Button btnOn;
+        private System.Windows.Forms.Button btnOff;
     }
 }
 

@@ -1,5 +1,5 @@
 ﻿namespace Lighting {
-    partial class Form1 {
+    partial class LightingForm {
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -31,7 +31,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Yu Gothic", 22.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(76, 26);
+            this.label1.Location = new System.Drawing.Point(23, 19);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(385, 48);
             this.label1.TabIndex = 0;
@@ -40,9 +40,10 @@
             // state
             // 
             this.state.AutoSize = true;
-            this.state.Location = new System.Drawing.Point(220, 138);
+            this.state.Font = new System.Drawing.Font("Yu Gothic", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.state.Location = new System.Drawing.Point(162, 128);
             this.state.Name = "state";
-            this.state.Size = new System.Drawing.Size(33, 16);
+            this.state.Size = new System.Drawing.Size(72, 36);
             this.state.TabIndex = 1;
             this.state.Text = "OFF";
             // 
@@ -50,11 +51,12 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(533, 628);
+            this.ClientSize = new System.Drawing.Size(441, 274);
             this.Controls.Add(this.state);
             this.Controls.Add(this.label1);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
