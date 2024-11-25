@@ -96,11 +96,11 @@ namespace WebApplication1.Controllers {
             var headerType = Request.Headers.GetValues("somiod-locate").First();
 
             switch (headerType) {
-                case "containers":
+                case "container":
                     return GetAllContainersNames(applicationName);
-                case "records":
+                case "record":
                     return GetAllRecordsNames(applicationName);
-                case "notifications":
+                case "notification":
                     return GetAllNotificationsNames(applicationName);
                 default:
                     return Ok("Unsuported resource type.");
