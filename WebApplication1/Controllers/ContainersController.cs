@@ -18,7 +18,7 @@ namespace WebApplication1.Controllers
 
         [HttpGet]
         [Route("api/somiod/{applicationName}/container/{containerName}")]
-        public IHttpActionResult GetContainerByApplicationAndName(string applicationName, string containerName) {
+        public IHttpActionResult GetContainerByApplication(string applicationName, string containerName) {
 
             // Get resouces using header "somiod-locate: <resouce>"
             if (Request.Headers.Contains("somiod-locate")) {
@@ -58,6 +58,39 @@ namespace WebApplication1.Controllers
             }
             catch (Exception) {
                 return InternalServerError(); 
+            }
+        }
+
+        #endregion
+
+        #region DELETEs
+
+        [HttpDelete]
+        [Route("api/somiod/{applicationName}/container/{containerName}")]
+        public IHttpActionResult DeleteContainerByApplication(string applicationName, string containerName) {
+            try {
+                using (var conn = new SqlConnection(connectionString)) {
+                    conn.Open();
+                    using (var command = new SqlCommand(
+                        "DELETE c FROM containers c " +
+                        "JOIN applications a ON c.parent = a.id " +
+                        "WHERE a.name = @applicationName " +
+                        "AND c.name = @containerName ", conn)) {
+                        command.Parameters.AddWithValue("@applicationName", applicationName);
+                        command.Parameters.AddWithValue("@containerName", containerName);
+
+                        int rowsAffected = command.ExecuteNonQuery();
+
+                        if (rowsAffected == 0) {
+                            return NotFound();
+                        }
+                    }
+                }
+
+                return Ok();
+            }
+            catch (Exception) {
+                return InternalServerError();
             }
         }
 

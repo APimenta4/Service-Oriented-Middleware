@@ -17,7 +17,7 @@ namespace WebApplication1.Controllers
         #region GETs
         [HttpGet]
         [Route("api/somiod/{applicationName}/{containerName}/notif/{notificationName}")]
-        public IHttpActionResult GetNotificationByApplicationContainerAndName(string applicationName, string containerName, string notificationName) {
+        public IHttpActionResult GetNotificationByApplicationContainer(string applicationName, string containerName, string notificationName) {
             Notification notification = null;
             try {
                 using (var conn = new SqlConnection(connectionString)) {
@@ -60,6 +60,42 @@ namespace WebApplication1.Controllers
             }
         }
 
+
+        #endregion
+
+        #region DELETEs
+
+        [HttpDelete]
+        [Route("api/somiod/{applicationName}/{containerName}/notif/{notificationName}")]
+        public IHttpActionResult DeleteNotificationByApplicationContainer(string applicationName, string containerName, string notificationName) {
+            try {
+                using (var conn = new SqlConnection(connectionString)) {
+                    conn.Open();
+                    using (var command = new SqlCommand(
+                        "DELETE n FROM notifications n " +
+                        "JOIN containers c ON n.parent = c.id " +
+                        "JOIN applications a ON c.parent = a.id " +
+                        "WHERE a.name = @applicationName " +
+                        "AND c.name = @containerName " +
+                        "AND n.name = @notificationName", conn)) {
+                        command.Parameters.AddWithValue("@applicationName", applicationName);
+                        command.Parameters.AddWithValue("@containerName", containerName);
+                        command.Parameters.AddWithValue("@notificationName", notificationName);
+
+                        int rowsAffected = command.ExecuteNonQuery();
+
+                        if (rowsAffected == 0) {
+                            return NotFound(); 
+                        }
+                    }
+                }
+
+                return Ok(); 
+            }
+            catch (Exception) {
+                return InternalServerError(); 
+            }
+        }
 
         #endregion
 

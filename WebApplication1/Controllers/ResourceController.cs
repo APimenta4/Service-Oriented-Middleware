@@ -54,7 +54,7 @@ namespace WebApplication1.Controllers
                 using (var connection = new SqlConnection(connectionString)) {
                     connection.Open();
                     using (var command = new SqlCommand("INSERT INTO Application (name, creation_datetime) VALUES (@name, @creation_datetime)", connection)) {
-                        command.Parameters.AddWithValue("@name", newApplication.name);
+                       // command.Parameters.AddWithValue("@name", newApplication.name);
                         command.Parameters.AddWithValue("@creation_datetime", DateTime.Now);
                         command.ExecuteNonQuery();
                     }

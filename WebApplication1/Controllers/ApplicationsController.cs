@@ -58,7 +58,35 @@ namespace WebApplication1.Controllers {
 
         #endregion
 
+        #region DELETEs
 
+        [HttpDelete]
+        [Route("api/somiod/{applicationName}")]
+        public IHttpActionResult DeleteApplication(string applicationName) {
+            try {
+                using (var conn = new SqlConnection(connectionString)) {
+                    conn.Open();
+                    using (var command = new SqlCommand(
+                        "DELETE a FROM applications a " +
+                        "WHERE a.name = @applicationName", conn)) {
+                        command.Parameters.AddWithValue("@applicationName", applicationName);
+
+                        int rowsAffected = command.ExecuteNonQuery();
+
+                        if (rowsAffected == 0) {
+                            return NotFound();
+                        }
+                    }
+                }
+
+                return Ok();
+            }
+            catch (Exception) {
+                return InternalServerError();
+            }
+        }
+
+        #endregion
 
 
         #region Helper methods

@@ -19,7 +19,7 @@ namespace WebApplication1.Controllers
 
         [HttpGet]
         [Route("api/somiod/{applicationName}/{containerName}/record/{recordName}")]
-        public IHttpActionResult GetRecordByApplicationContainerAndName(string applicationName, string containerName, string recordName) {
+        public IHttpActionResult GetRecordByApplicationContainer(string applicationName, string containerName, string recordName) {
             Record record = null;
             try {
                 using (var conn = new SqlConnection(connectionString)) {
@@ -63,6 +63,41 @@ namespace WebApplication1.Controllers
 
         #endregion
 
+        #region DELETEs
+
+        [HttpDelete]
+        [Route("api/somiod/{applicationName}/{containerName}/record/{recordName}")]
+        public IHttpActionResult DeleteRecordByApplicationContainer(string applicationName, string containerName, string recordName) {
+            try {
+                using (var conn = new SqlConnection(connectionString)) {
+                    conn.Open();
+                    using (var command = new SqlCommand(
+                        "DELETE r FROM records r " +
+                        "JOIN containers c ON r.parent = c.id " +
+                        "JOIN applications a ON c.parent = a.id " +
+                        "WHERE a.name = @applicationName " +
+                        "AND c.name = @containerName " +
+                        "AND r.name = @recordName", conn)) {
+                        command.Parameters.AddWithValue("@applicationName", applicationName);
+                        command.Parameters.AddWithValue("@containerName", containerName);
+                        command.Parameters.AddWithValue("@recordName", recordName);
+
+                        int rowsAffected = command.ExecuteNonQuery();
+
+                        if (rowsAffected == 0) {
+                            return NotFound(); 
+                        }
+                    }
+                }
+
+                return Ok(); 
+            }
+            catch (Exception) {
+                return InternalServerError(); 
+            }
+        }
+
+        #endregion
 
     }
 
