@@ -34,7 +34,7 @@ VALUES
     ('Record9', 'Content of Record9', GETDATE(), 8); 
 
 -- Inserting sample notifications
-INSERT INTO notifications (name, Event, endpoint, creation_datetime, parent, enabled)
+INSERT INTO notifications (name, event, endpoint, creation_datetime, parent, enabled)
 VALUES
     ('Notification1', 'creation', 'http://endpoint1.com', GETDATE(), 1, 1),  
     ('Notification2', 'deletion', 'http://endpoint2.com', GETDATE(), 1, 1),  

@@ -40,7 +40,7 @@ namespace WebApplication1.Controllers
                                     name = (string)reader["name"],
                                     creation_datetime = (DateTime)reader["creation_datetime"],
                                     parent = (int)reader["parent"],
-                                    Event = (string)reader["Event"],
+                                    @event = (string)reader["event"],
                                     endpoint = (string)reader["endpoint"],
                                     enabled = (bool)reader["enabled"]
                                 };
