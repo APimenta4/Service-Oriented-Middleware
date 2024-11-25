@@ -36,13 +36,13 @@ VALUES
 -- Inserting sample notifications
 INSERT INTO notifications (name, event, endpoint, creation_datetime, parent, enabled)
 VALUES
-    ('Notification1', 'creation', 'http://endpoint1.com', GETDATE(), 1, 1),  
-    ('Notification2', 'deletion', 'http://endpoint2.com', GETDATE(), 1, 1),  
-    ('Notification3', 'creation', 'http://endpoint3.com', GETDATE(), 2, 1),  
-    ('Notification4', 'both', 'http://endpoint4.com', GETDATE(), 3, 0),  
-    ('Notification5', 'both', 'http://endpoint5.com', GETDATE(), 4, 1),  
-    ('Notification6', 'creation', 'http://endpoint6.com', GETDATE(), 5, 1), 
-    ('Notification7', 'deletion', 'http://endpoint7.com', GETDATE(), 6, 0),  
-    ('Notification8', 'creation', 'http://endpoint8.com', GETDATE(), 7, 1), 
-    ('Notification9', 'both', 'http://endpoint9.com', GETDATE(), 8, 1), 
-    ('Notification10', 'both', 'http://endpoint10.com', GETDATE(), 1, 1); 
+    ('Notification1', '1', 'http://endpoint1.com', GETDATE(), 1, 1),  
+    ('Notification2', '1', 'http://endpoint2.com', GETDATE(), 1, 1),  
+    ('Notification3', '1', 'http://endpoint3.com', GETDATE(), 2, 1),  
+    ('Notification4', '2', 'http://endpoint4.com', GETDATE(), 3, 0),  
+    ('Notification5', '2', 'http://endpoint5.com', GETDATE(), 4, 1),  
+    ('Notification6', '1', 'http://endpoint6.com', GETDATE(), 5, 1), 
+    ('Notification7', '2', 'http://endpoint7.com', GETDATE(), 6, 0),  
+    ('Notification8', '1', 'http://endpoint8.com', GETDATE(), 7, 1), 
+    ('Notification9', '2', 'http://endpoint9.com', GETDATE(), 8, 1), 
+    ('Notification10', '1', 'http://endpoint10.com', GETDATE(), 1, 1); 

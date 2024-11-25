@@ -9,7 +9,7 @@ namespace WebApplication1.Models {
         public string name { get; set; }
         public DateTime creation_datetime { get; set; }
         public int parent { get; set; }
-        public string Event { get; set; }   // TODO: Fix ;  lowercase event is reserved in C#
+        public string @event { get; set; }   
         public string endpoint { get; set; }
         public bool enabled { get; set; }
     }
