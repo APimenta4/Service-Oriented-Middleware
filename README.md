@@ -6,27 +6,20 @@ Todo list
   
   Put
   
-  Delete
-  
 -------Container
 
   Post
   
   Put
   
-  Delete
-  
 -------Record
 
   Post
-  
-  Delete
   
 -------Notification
 
   Post
   
-  Delete
 
 
 
