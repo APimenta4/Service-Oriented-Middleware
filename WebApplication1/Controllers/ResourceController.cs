@@ -14,6 +14,8 @@ namespace WebApplication1.Controllers
         readonly string connectionString = WebApplication1.WebApiApplication.connectionString;
         SqlConnection conn = null;
 
+        #region GET Resources
+
         // Get resouces using header "somiod-locate: <resouce>"
         [HttpGet]
         [Route("api/somiod")]
@@ -41,11 +43,13 @@ namespace WebApplication1.Controllers
 
         }
 
+        #endregion
+
         #region POSTs
 
         [HttpPost]
         [Route("api/somiod")]
-        public IHttpActionResult PostApplication(HttpRequestMessage request) {
+        public IHttpActionResult PostApplication(HttpRequestMessage request ????? Application application) {
 
             // Não sei como fazer esta parte de ler o xml
             // newApplication = ????
