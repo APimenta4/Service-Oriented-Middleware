@@ -30,5 +30,5 @@ CREATE TABLE notifications (
     endpoint NVARCHAR(255) NOT NULL,
     enabled BIT NOT NULL,
     FOREIGN KEY (parent) REFERENCES container(id),
-    CONSTRAINT CHK_Event CHECK (event IN ('creation', 'deletion', 'both'))
+    CONSTRAINT CHK_Event CHECK (event IN ('1','2'))
 );
