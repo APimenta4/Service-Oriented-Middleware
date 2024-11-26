@@ -59,7 +59,7 @@ namespace WebApplication1.Controllers {
         #endregion
 
         #region POSTs
-
+        /*
         [HttpPost]
         [Route("api/somiod/{applicationName}")]
         public IHttpActionResult PostContainer(string applicationName, Container newContainer) {
@@ -74,26 +74,29 @@ namespace WebApplication1.Controllers {
                         command.Parameters.AddWithValue("@name", newContainer.name);
                         using (var reader = command.ExecuteReader()) {
                             if (reader.Read()) {
-                                newApplication.name = newApplication.name + "_1";  // TODO: improve this
+                                newContainer.name = newContainer.name + "_1";  // TODO: improve this
                             }
                         }
                     }
-                    using (var command = new SqlCommand("INSERT INTO applications (name, creation_datetime) OUTPUT INSERTED.id VALUES (@name, @creation_datetime)", connection)) {
-                        command.Parameters.AddWithValue("@name", newApplication.name);
-                        command.Parameters.AddWithValue("@creation_datetime", newApplication.creation_datetime);
-                        newApplication.id = (int)command.ExecuteScalar();
+                    using (var command = new SqlCommand("INSERT INTO containers (name, creation_datetime, parent) OUTPUT INSERTED.id VALUES (@name, @creation_datetime)", connection)) {
+                        command.Parameters.AddWithValue("@name", newContainer.name);
+                        command.Parameters.AddWithValue("@creation_datetime", newContainer.creation_datetime);
+                        newContainer.id = (int)command.ExecuteScalar();
                     }
                 }
 
-                return Ok(newApplication);
+                return Ok(newContainer);
             }
             catch (Exception) {
                 return InternalServerError();
             }
         }
+        */
 
 
         #endregion
+
+      
 
         #region DELETEs
 

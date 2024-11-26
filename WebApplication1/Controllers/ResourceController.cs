@@ -48,27 +48,41 @@ namespace WebApplication1.Controllers {
         [HttpPost]
         [Route("api/somiod")]
         public IHttpActionResult PostApplication(Application newApplication) {
-            if (newApplication == null || newApplication.name == null) {
+            if (newApplication == null || string.IsNullOrEmpty(newApplication.name)) {
                 return BadRequest();
             }
+
             newApplication.creation_datetime = DateTime.Now;
+
             try {
-                using (var connection = new SqlConnection(connectionString)) {
-                    connection.Open();
-                    using (var command = new SqlCommand("SELECT name FROM applications WHERE name = @name", connection)) {
-                        command.Parameters.AddWithValue("@name", newApplication.name);
-                        using (var reader = command.ExecuteReader()) {
-                            if (reader.Read()) {
-                                newApplication.name = newApplication.name + "_1";  // TODO: improve this
+                do {
+                    using (var connection = new SqlConnection(connectionString)) {
+                        connection.Open();
+
+                        try {
+                            using (var command = new SqlCommand("INSERT INTO applications (name, creation_datetime) OUTPUT INSERTED.id VALUES (@name, @creation_datetime)", connection)) {
+                                command.Parameters.AddWithValue("@name", newApplication.name);
+                                command.Parameters.AddWithValue("@creation_datetime", newApplication.creation_datetime);
+
+                                newApplication.id = (int)command.ExecuteScalar();
+
+                                break;
+                            }
+                        }
+                        catch (SqlException e) {
+                            if (e.Number == 2627) {
+                                using (var countCommand = new SqlCommand("SELECT COUNT(*) FROM applications WHERE name LIKE @name", connection)) {
+                                    countCommand.Parameters.AddWithValue("@name", newApplication.name + "%");
+                                    int count = (int)countCommand.ExecuteScalar();
+                                    newApplication.name = $"{newApplication.name}_{count + 1}";
+                                }
+                            }
+                            else {
+                                throw;
                             }
                         }
                     }
-                    using (var command = new SqlCommand("INSERT INTO applications (name, creation_datetime) OUTPUT INSERTED.id VALUES (@name, @creation_datetime)", connection)) {
-                        command.Parameters.AddWithValue("@name", newApplication.name);
-                        command.Parameters.AddWithValue("@creation_datetime", newApplication.creation_datetime);
-                        newApplication.id = (int)command.ExecuteScalar();
-                    }
-                }
+                } while (true);
 
                 return Ok(newApplication);
             }
@@ -76,6 +90,8 @@ namespace WebApplication1.Controllers {
                 return InternalServerError();
             }
         }
+
+
 
 
         #endregion
