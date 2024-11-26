@@ -48,6 +48,9 @@ namespace WebApplication1.Controllers {
         [HttpPost]
         [Route("api/somiod")]
         public IHttpActionResult PostApplication(Application newApplication) {
+            if (newApplication == null || newApplication.name == null) {
+                return BadRequest();
+            }
             newApplication.creation_datetime = DateTime.Now;
             try {
                 using (var connection = new SqlConnection(connectionString)) {

@@ -6,7 +6,7 @@ DROP TABLE notifications;
 
 CREATE TABLE applications (
     id INT PRIMARY KEY IDENTITY(1,1),
-    name NVARCHAR(255) NOT NULL,
+    name NVARCHAR(255) UNIQUE NOT NULL,
     creation_datetime DATETIME2 NOT NULL
 );
 

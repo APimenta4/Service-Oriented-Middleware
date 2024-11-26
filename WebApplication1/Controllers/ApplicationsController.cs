@@ -58,6 +58,43 @@ namespace WebApplication1.Controllers {
 
         #endregion
 
+        #region POSTs
+
+        [HttpPost]
+        [Route("api/somiod/{applicationName}")]
+        public IHttpActionResult PostContainer(string applicationName, Container newContainer) {
+            if (newContainer == null || string.IsNullOrEmpty(newContainer.name) || newContainer.parent <= 0) {
+                return BadRequest();
+            }
+            newContainer.creation_datetime = DateTime.Now;
+            try {
+                using (var connection = new SqlConnection(connectionString)) {
+                    connection.Open();
+                    using (var command = new SqlCommand("SELECT name FROM containers WHERE name = @name", connection)) {
+                        command.Parameters.AddWithValue("@name", newContainer.name);
+                        using (var reader = command.ExecuteReader()) {
+                            if (reader.Read()) {
+                                newApplication.name = newApplication.name + "_1";  // TODO: improve this
+                            }
+                        }
+                    }
+                    using (var command = new SqlCommand("INSERT INTO applications (name, creation_datetime) OUTPUT INSERTED.id VALUES (@name, @creation_datetime)", connection)) {
+                        command.Parameters.AddWithValue("@name", newApplication.name);
+                        command.Parameters.AddWithValue("@creation_datetime", newApplication.creation_datetime);
+                        newApplication.id = (int)command.ExecuteScalar();
+                    }
+                }
+
+                return Ok(newApplication);
+            }
+            catch (Exception) {
+                return InternalServerError();
+            }
+        }
+
+
+        #endregion
+
         #region DELETEs
 
         [HttpDelete]
