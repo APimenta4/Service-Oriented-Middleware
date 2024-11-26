@@ -59,31 +59,44 @@ namespace WebApplication1.Controllers {
         #endregion
 
         #region POSTs
-        /*
+
         [HttpPost]
         [Route("api/somiod/{applicationName}")]
+
+        // TODO
         public IHttpActionResult PostContainer(string applicationName, Container newContainer) {
-            if (newContainer == null || string.IsNullOrEmpty(newContainer.name) || newContainer.parent <= 0) {
+            if (newContainer == null || string.IsNullOrEmpty(newContainer.name)) {
                 return BadRequest();
             }
             newContainer.creation_datetime = DateTime.Now;
+
             try {
-                using (var connection = new SqlConnection(connectionString)) {
-                    connection.Open();
-                    using (var command = new SqlCommand("SELECT name FROM containers WHERE name = @name", connection)) {
-                        command.Parameters.AddWithValue("@name", newContainer.name);
-                        using (var reader = command.ExecuteReader()) {
-                            if (reader.Read()) {
-                                newContainer.name = newContainer.name + "_1";  // TODO: improve this
+                do {
+                    using (var connection = new SqlConnection(connectionString)) {
+                        connection.Open();
+                        try {
+                            using (var command = new SqlCommand("INSERT INTO containers (name, creation_datetime, parent) OUTPUT INSERTED.id VALUES (@name, @creation_datetime, @parent)", connection)) {
+                                command.Parameters.AddWithValue("@name", newContainer.name);
+                                command.Parameters.AddWithValue("@creation_datetime", newContainer.creation_datetime);
+                                command.Parameters.AddWithValue("@parent", newContainer.parent);
+                                newContainer.id = (int)command.ExecuteScalar();
+                                break;
+                            }
+                        }
+                        catch (SqlException e) {
+                            if (e.Number == 2627) {
+                                using (var countCommand = new SqlCommand("SELECT COUNT(*) FROM containers WHERE name LIKE @name", connection)) {
+                                    countCommand.Parameters.AddWithValue("@name", newContainer.name + "%");
+                                    int count = (int)countCommand.ExecuteScalar();
+                                    newContainer.name = $"{newContainer.name}_{count + 1}";
+                                }
+                            }
+                            else {
+                                throw;
                             }
                         }
                     }
-                    using (var command = new SqlCommand("INSERT INTO containers (name, creation_datetime, parent) OUTPUT INSERTED.id VALUES (@name, @creation_datetime)", connection)) {
-                        command.Parameters.AddWithValue("@name", newContainer.name);
-                        command.Parameters.AddWithValue("@creation_datetime", newContainer.creation_datetime);
-                        newContainer.id = (int)command.ExecuteScalar();
-                    }
-                }
+                } while (true);
 
                 return Ok(newContainer);
             }
@@ -91,12 +104,11 @@ namespace WebApplication1.Controllers {
                 return InternalServerError();
             }
         }
-        */
 
 
         #endregion
 
-      
+
 
         #region DELETEs
 

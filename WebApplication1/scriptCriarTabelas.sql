@@ -15,7 +15,8 @@ CREATE TABLE containers (
     name NVARCHAR(255) NOT NULL,
     creation_datetime DATETIME2 NOT NULL,
     parent INT NOT NULL,
-    FOREIGN KEY (parent) REFERENCES applications(id) ON DELETE CASCADE
+    FOREIGN KEY (parent) REFERENCES applications(id) ON DELETE CASCADE,
+    CONSTRAINT UQ_Containers_Name_Parent UNIQUE (name, parent)
 );
 
 CREATE TABLE records (
@@ -24,7 +25,8 @@ CREATE TABLE records (
     content NVARCHAR(1023) NOT NULL,
     creation_datetime DATETIME2 NOT NULL,
     parent INT NOT NULL,
-    FOREIGN KEY (parent) REFERENCES containers(id) ON DELETE CASCADE
+    FOREIGN KEY (parent) REFERENCES containers(id) ON DELETE CASCADE,
+    CONSTRAINT UQ_Containers_Name_Parent UNIQUE (name, parent)
 );
 
 CREATE TABLE notifications (
@@ -36,5 +38,6 @@ CREATE TABLE notifications (
     endpoint NVARCHAR(255) NOT NULL,
     enabled BIT NOT NULL,
     FOREIGN KEY (parent) REFERENCES containers(id) ON DELETE CASCADE,
-    CONSTRAINT CHK_Event CHECK (event IN ('1','2'))
+    CONSTRAINT CHK_Event CHECK (event IN ('1','2')),
+    CONSTRAINT UQ_Containers_Name_Parent UNIQUE (name, parent)
 );

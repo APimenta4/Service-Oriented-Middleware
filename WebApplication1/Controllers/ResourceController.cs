@@ -63,9 +63,7 @@ namespace WebApplication1.Controllers {
                             using (var command = new SqlCommand("INSERT INTO applications (name, creation_datetime) OUTPUT INSERTED.id VALUES (@name, @creation_datetime)", connection)) {
                                 command.Parameters.AddWithValue("@name", newApplication.name);
                                 command.Parameters.AddWithValue("@creation_datetime", newApplication.creation_datetime);
-
                                 newApplication.id = (int)command.ExecuteScalar();
-
                                 break;
                             }
                         }
@@ -83,7 +81,6 @@ namespace WebApplication1.Controllers {
                         }
                     }
                 } while (true);
-
                 return Ok(newApplication);
             }
             catch (Exception) {
