@@ -7,10 +7,8 @@ using System.Net.Http;
 using System.Web.Http;
 using WebApplication1.Models;
 
-namespace WebApplication1.Controllers
-{
-    public class ResourceController : ApiController
-    {
+namespace WebApplication1.Controllers {
+    public class ResourceController : ApiController {
         readonly string connectionString = WebApplication1.WebApiApplication.connectionString;
         SqlConnection conn = null;
 
@@ -49,22 +47,27 @@ namespace WebApplication1.Controllers
 
         [HttpPost]
         [Route("api/somiod")]
-        public IHttpActionResult PostApplication(HttpRequestMessage request ????? Application application) {
-
-            // Não sei como fazer esta parte de ler o xml
-            // newApplication = ????
-
+        public IHttpActionResult PostApplication(Application newApplication) {
+            newApplication.creation_datetime = DateTime.Now;
             try {
                 using (var connection = new SqlConnection(connectionString)) {
                     connection.Open();
-                    using (var command = new SqlCommand("INSERT INTO Application (name, creation_datetime) VALUES (@name, @creation_datetime)", connection)) {
-                       // command.Parameters.AddWithValue("@name", newApplication.name);
-                        command.Parameters.AddWithValue("@creation_datetime", DateTime.Now);
-                        command.ExecuteNonQuery();
+                    using (var command = new SqlCommand("SELECT name FROM applications WHERE name = @name", connection)) {
+                        command.Parameters.AddWithValue("@name", newApplication.name);
+                        using (var reader = command.ExecuteReader()) {
+                            if (reader.Read()) {
+                                newApplication.name = newApplication.name + "_1";  // TODO: improve this
+                            }
+                        }
+                    }
+                    using (var command = new SqlCommand("INSERT INTO applications (name, creation_datetime) OUTPUT INSERTED.id VALUES (@name, @creation_datetime)", connection)) {
+                        command.Parameters.AddWithValue("@name", newApplication.name);
+                        command.Parameters.AddWithValue("@creation_datetime", newApplication.creation_datetime);
+                        newApplication.id = (int)command.ExecuteScalar();
                     }
                 }
 
-                return Ok();
+                return Ok(newApplication);
             }
             catch (Exception) {
                 return InternalServerError();

@@ -11,6 +11,7 @@ namespace WebApplication1
         public static void Register(HttpConfiguration config)
         {
             // Web API routes
+            config.Formatters.XmlFormatter.UseXmlSerializer = true; // enable xml?
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(

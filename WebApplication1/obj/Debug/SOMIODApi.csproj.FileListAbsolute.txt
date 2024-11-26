@@ -1,8 +1,5 @@
 C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\obj\Debug\SOMIODApi.csproj.AssemblyReference.cache
 C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\obj\Debug\SOMIODApi.csproj.CoreCompileInputs.cache
-C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\bin\WebApplication1.dll.config
-C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\bin\WebApplication1.dll
-C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\bin\WebApplication1.pdb
 C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\bin\roslyn\csc.exe
 C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\bin\roslyn\csc.exe.config
 C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\bin\roslyn\csc.rsp
@@ -63,5 +60,8 @@ C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\bin\System.Web.Http.xml
 C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\bin\System.Web.Http.WebHost.xml
 C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml
 C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\obj\Debug\SOMIODApi.csproj.Up2Date
-C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\obj\Debug\WebApplication1.dll
-C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\obj\Debug\WebApplication1.pdb
+C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\bin\API.dll.config
+C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\bin\API.dll
+C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\bin\API.pdb
+C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\obj\Debug\API.dll
+C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\obj\Debug\API.pdb
