@@ -19,6 +19,8 @@ namespace WebApplication1
                 routeTemplate: "api/somiod/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
+
+            config.Formatters.XmlFormatter.UseXmlSerializer = true;
         }
     }
 }
