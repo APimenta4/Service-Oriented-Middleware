@@ -16,7 +16,7 @@ namespace WebApplication1.Controllers {
         readonly string connectionString = WebApplication1.WebApiApplication.connectionString;
         SqlConnection conn = null;
 
-        #region Notas
+        #region -- Notas --
 
         // Os métodos POST e Locate (<somiod-locate>, que no fundo é um GET com um header adicional) devem apontar para a "parent resource"
         // Os métodos GET, PUT e DELETE devem apontar para a "child resource"
@@ -40,33 +40,6 @@ namespace WebApplication1.Controllers {
         // O url para notifications é /notif
 
         #endregion 
-
-        // Locate on base url (/api/somiod)
-        [HttpGet]
-        [Route()]
-        public IHttpActionResult GetResourcesByHeader() {
-
-            if (!Request.Headers.Contains("somiod-locate")) {
-                return Ok("No 'somiod-locate' header found.");
-            }
-
-            var headerType = Request.Headers.GetValues("somiod-locate").First();
-
-            switch (headerType) {
-                case "application":
-                    return GetAllApplicationsNames();
-                case "container":
-                    return GetAllContainersNames();
-                case "record":
-                    return GetAllRecordsNames();
-                case "notification":
-                    return GetAllNotificationsNames();
-                default:
-                    return Ok("Unsuported resource type.");
-
-            }
-
-        }
 
         #region Application
 
@@ -125,7 +98,7 @@ namespace WebApplication1.Controllers {
                 do {
                     using (var connection = new SqlConnection(connectionString)) {
                         connection.Open();
-
+                        // tenta inserir na BD uma nova aplicação
                         try {
                             using (var command = new SqlCommand("INSERT INTO applications (name, creation_datetime) OUTPUT INSERTED.id VALUES (@name, @creation_datetime)", connection)) {
                                 command.Parameters.AddWithValue("@name", newApplication.name);
@@ -134,6 +107,8 @@ namespace WebApplication1.Controllers {
                                 break;
                             }
                         }
+                        // caso apanhe a exceção 2627 (violar unique constraint), adiciona um identificador único (neste caso, _X) com base no número de aplicações com o nome semelhante (select count(*))
+                        // pode haver uma maneira mais "limpa" de fazer isto, mas o professor da Isa disse que bastava
                         catch (SqlException e) {
                             if (e.Number == 2627) {
                                 using (var countCommand = new SqlCommand("SELECT COUNT(*) FROM applications WHERE name LIKE @name", connection)) {
@@ -143,12 +118,12 @@ namespace WebApplication1.Controllers {
                                 }
                             }
                             else {
-                                throw;
+                                throw; // para outros erros de sql, manda uma exception normal que depois é apanhada algumas linhas abaixo e é enviado um InternalServerError
                             }
                         }
                     }
                 } while (true);
-                return Ok(newApplication);
+                return Ok(newApplication); // aqui apesar de ser um POST, acho que faz sentido devolver a resource criada ao utilizador porque pode acabar por ter um nome diferente do que ele escolheu
             }
             catch (Exception) {
                 return InternalServerError();
@@ -492,6 +467,35 @@ namespace WebApplication1.Controllers {
 
         #endregion
 
+        #region <somiod-locate> operations
+
+        // Locate on base url (/api/somiod)
+        [HttpGet]
+        [Route()]
+        public IHttpActionResult GetResourcesByHeader() {
+
+            if (!Request.Headers.Contains("somiod-locate")) {
+                return Ok("No 'somiod-locate' header found.");
+            }
+
+            var headerType = Request.Headers.GetValues("somiod-locate").First();
+
+            switch (headerType) {
+                case "application":
+                    return GetAllApplicationsNames();
+                case "container":
+                    return GetAllContainersNames();
+                case "record":
+                    return GetAllRecordsNames();
+                case "notification":
+                    return GetAllNotificationsNames();
+                default:
+                    return Ok("Unsuported resource type.");
+
+            }
+
+        }
+
 
         #region <somiod-locate> Helper methods (Base url)
         public IHttpActionResult GetAllApplicationsNames() {
@@ -759,7 +763,7 @@ namespace WebApplication1.Controllers {
 
         #endregion
 
-
+        #endregion
 
 
     }
