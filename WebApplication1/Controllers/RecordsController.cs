@@ -11,6 +11,7 @@ namespace WebApplication1.Controllers
 {
     public class RecordsController : ApiController
     {
+        /*
         readonly string connectionString = WebApplication1.WebApiApplication.connectionString;
         SqlConnection conn = null;
 
@@ -98,7 +99,7 @@ namespace WebApplication1.Controllers
         }
 
         #endregion
-
+        */
     }
 
 }
