@@ -42,6 +42,8 @@ namespace WebApplication1.Controllers {
         #endregion 
 
         // Locate on base url (/api/somiod)
+        [HttpGet]
+        [Route()]
         public IHttpActionResult GetResourcesByHeader() {
 
             if (!Request.Headers.Contains("somiod-locate")) {
