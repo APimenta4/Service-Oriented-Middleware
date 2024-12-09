@@ -170,7 +170,7 @@ namespace WebApplication1.Controllers {
 
         [HttpGet]
         [Route("{applicationName}/container/{containerName}")]
-        public IHttpActionResult GetContainerByApplication(string applicationName, string containerName) {
+        public IHttpActionResult GetContainer(string applicationName, string containerName) {
 
             // Get resouces using header "somiod-locate: <resouce>"
             if (Request.Headers.Contains("somiod-locate")) {
@@ -266,7 +266,7 @@ namespace WebApplication1.Controllers {
 
         [HttpDelete]
         [Route("{applicationName}/container/{containerName}")]
-        public IHttpActionResult DeleteContainerByApplication(string applicationName, string containerName) {
+        public IHttpActionResult DeleteContainer(string applicationName, string containerName) {
             try {
                 using (var conn = new SqlConnection(connectionString)) {
                     conn.Open();
@@ -301,7 +301,7 @@ namespace WebApplication1.Controllers {
 
         [HttpGet]
         [Route("{applicationName}/{containerName}/record/{recordName}")]
-        public IHttpActionResult GetRecordByApplicationContainer(string applicationName, string containerName, string recordName) {
+        public IHttpActionResult GetRecord(string applicationName, string containerName, string recordName) {
             Record record = null;
             try {
                 using (var conn = new SqlConnection(connectionString)) {
@@ -344,11 +344,15 @@ namespace WebApplication1.Controllers {
 
         // POST
 
+        //[HttpPost]
+        //[Route("{applicationName}/{containerName}")]
+        //public IHttpActionResult PostRecord
+
         // DELETE
 
         [HttpDelete]
         [Route("{applicationName}/{containerName}/record/{recordName}")]
-        public IHttpActionResult DeleteRecordByApplicationContainer(string applicationName, string containerName, string recordName) {
+        public IHttpActionResult DeleteRecord(string applicationName, string containerName, string recordName) {
             try {
                 using (var conn = new SqlConnection(connectionString)) {
                     conn.Open();
@@ -386,7 +390,7 @@ namespace WebApplication1.Controllers {
 
         [HttpGet]
         [Route("{applicationName}/{containerName}/notif/{notificationName}")]
-        public IHttpActionResult GetNotificationByApplicationContainer(string applicationName, string containerName, string notificationName) {
+        public IHttpActionResult GetNotification(string applicationName, string containerName, string notificationName) {
             Notification notification = null;
             try {
                 using (var conn = new SqlConnection(connectionString)) {
@@ -435,7 +439,7 @@ namespace WebApplication1.Controllers {
 
         [HttpDelete]
         [Route("{applicationName}/{containerName}/notif/{notificationName}")]
-        public IHttpActionResult DeleteNotificationByApplicationContainer(string applicationName, string containerName, string notificationName) {
+        public IHttpActionResult DeleteNotification(string applicationName, string containerName, string notificationName) {
             try {
                 using (var conn = new SqlConnection(connectionString)) {
                     conn.Open();
