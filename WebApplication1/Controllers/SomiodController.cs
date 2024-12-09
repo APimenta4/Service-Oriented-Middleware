@@ -169,7 +169,7 @@ namespace WebApplication1.Controllers {
         // GET
 
         [HttpGet]
-        [Route("{applicationName}/container/{containerName}")]
+        [Route("{applicationName}/{containerName}")]
         public IHttpActionResult GetContainer(string applicationName, string containerName) {
 
             // Get resouces using header "somiod-locate: <resouce>"
@@ -265,7 +265,7 @@ namespace WebApplication1.Controllers {
         // DELETE
 
         [HttpDelete]
-        [Route("{applicationName}/container/{containerName}")]
+        [Route("{applicationName}/{containerName}")]
         public IHttpActionResult DeleteContainer(string applicationName, string containerName) {
             try {
                 using (var conn = new SqlConnection(connectionString)) {
@@ -344,9 +344,17 @@ namespace WebApplication1.Controllers {
 
         // POST
 
-        //[HttpPost]
-        //[Route("{applicationName}/{containerName}")]
-        //public IHttpActionResult PostRecord
+        [HttpPost]
+        [Route("{applicationName}/{containerName}")]
+        public IHttpActionResult PostRecord(string applicationName, string containerName) {
+
+
+            // TODO daqui para baixo --------------- Afonso - só usei a parte de cima para as notifications
+
+
+            
+            return Ok();
+        }
 
         // DELETE
 
@@ -373,6 +381,13 @@ namespace WebApplication1.Controllers {
                             return NotFound();
                         }
                     }
+
+                    // Afonso - notificações: começa aqui
+                    if()
+
+
+
+                    // Até aqui
                 }
 
                 return Ok();
