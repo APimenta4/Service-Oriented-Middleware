@@ -1,6 +1,8 @@
-﻿using System;
+﻿using API.Models;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.EnterpriseServices.Internal;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -38,6 +40,20 @@ namespace WebApplication1.Controllers {
         // Como temos o RoutePrefix("api/somiod"), não é necessário colocar "api/somiod" em cada Route
 
         // O url para notifications é /notif
+
+        // Para POSTs e PUTs dentro de um container deve ser mandado um res-type a dizer se é record ou notification
+
+        // A professora disse que o name devia ser único no seu contexto, o professor disse que devia ser globamente único
+        // Ele disse que podia ser assim porque nas operações de discover podem aparecer nomes iguais
+        // Atualmente está implementado como a professora disse,
+        // ou deixamos estar e justificamos no relatório
+        // ou fazemos como o professor quer
+        // Acho que faz mais sentido deixar
+
+        // O professor disse que podíamos fazer extras
+        // Como por exemplo o UPDATE notifications, que no enunciado está incompleto
+        // No enunciado diz que não se pode dar update às notifications, mas elas têm de ter um campo "enabled"
+        // Eu nas notificações já faço a validação se a notificação está "enabled", por isso é só mesmo fazer o método PUT
 
         #endregion 
 
@@ -82,8 +98,6 @@ namespace WebApplication1.Controllers {
             }
         }
 
-
-        // POST
 
         [HttpPost]
         [Route()]
@@ -134,8 +148,6 @@ namespace WebApplication1.Controllers {
 
 
 
-        // DELETE
-
         [HttpDelete]
         [Route("{applicationName}")]
         public IHttpActionResult DeleteApplication(string applicationName) {
@@ -165,8 +177,6 @@ namespace WebApplication1.Controllers {
         #endregion
 
         #region Container
-
-        // GET
 
         [HttpGet]
         [Route("{applicationName}/{containerName}")]
@@ -262,7 +272,6 @@ namespace WebApplication1.Controllers {
 
         // PUT
 
-        // DELETE
 
         [HttpDelete]
         [Route("{applicationName}/{containerName}")]
@@ -296,8 +305,6 @@ namespace WebApplication1.Controllers {
         #endregion
 
         #region Record
-
-        // GET
 
         [HttpGet]
         [Route("{applicationName}/{containerName}/record/{recordName}")]
@@ -342,25 +349,59 @@ namespace WebApplication1.Controllers {
             }
         }
 
-        // POST
 
         [HttpPost]
         [Route("{applicationName}/{containerName}")]
-        public IHttpActionResult PostRecord(string applicationName, string containerName) {
+        public IHttpActionResult PostRecord(string applicationName, string containerName, Record newRecord) {
+            try {
+                using (var conn = new SqlConnection(connectionString)) {
+                    conn.Open();
+
+                    // Insert record logic here...
 
 
-            // TODO daqui para baixo --------------- Afonso - só usei a parte de cima para as notifications
 
 
-            
-            return Ok();
+                    // Notifications
+                    using (var command = new SqlCommand(
+                        "SELECT * from notifications n " +
+                        "JOIN containers c on n.parent = c.id " +
+                        "WHERE c.name = @containerName " +
+                        "AND n.event = 1 " +
+                        "AND n.enabled = 1", conn)) {
+                        command.Parameters.AddWithValue("@containerName", containerName);
+
+                        using (var reader = command.ExecuteReader()) {
+                            while (reader.Read()) {
+                                Console.WriteLine("Notification: " + reader["name"]);
+                                NotificationResponse notificationResponse = new NotificationResponse {
+                                    record = newRecord,
+                                    @event = "creation"
+                                };
+                                // HTTP
+                                if (((string)reader["endpoint"]).StartsWith("http://")) {
+
+                                }
+                                // MQTT
+                                else {
+
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return Ok();
+            }
+            catch (Exception) {
+                return InternalServerError();
+            }
         }
-
-        // DELETE
 
         [HttpDelete]
         [Route("{applicationName}/{containerName}/record/{recordName}")]
         public IHttpActionResult DeleteRecord(string applicationName, string containerName, string recordName) {
+            Record deletedRecord = null;
             try {
                 using (var conn = new SqlConnection(connectionString)) {
                     conn.Open();
@@ -375,19 +416,51 @@ namespace WebApplication1.Controllers {
                         command.Parameters.AddWithValue("@containerName", containerName);
                         command.Parameters.AddWithValue("@recordName", recordName);
 
-                        int rowsAffected = command.ExecuteNonQuery();
-
-                        if (rowsAffected == 0) {
-                            return NotFound();
+                        using (var reader = command.ExecuteReader()) {
+                            if (reader.Read()) {
+                                deletedRecord = new Record {
+                                    id = (int)reader["id"],
+                                    name = (string)reader["name"],
+                                    content = (string)reader["content"],
+                                    creation_datetime = (DateTime)reader["creation_datetime"],
+                                    parent = (int)reader["parent"]
+                                };
+                            }
+                            if (deletedRecord == null) {
+                                return NotFound();
+                            }
                         }
                     }
 
-                    // Afonso - notificações: começa aqui
-                    if()
+                    // Notifications
+                    using (var command = new SqlCommand(
+                        "SELECT * from notifications n " +
+                        "JOIN containers c on n.parent = c.id " +
+                        "WHERE c.name = @containerName " +
+                        "AND n.event = 2 " +
+                        "And n.enabled = 1", conn)) {
+                        command.Parameters.AddWithValue("@containerName", containerName);
+
+                        using (var reader = command.ExecuteReader()) {
+                            while (reader.Read()) {
+                                NotificationResponse notificationResponse = new NotificationResponse {
+                                    record = deletedRecord,
+                                    @event = "deletion"
+                                };
+                                // HTTP
+                                if (((string)reader["endpoint"]).StartsWith("http://")) {
+
+                                }
+                                // MQTT
+                                else {
+
+                                }
+
+                            }
+                        }
+                    }
 
 
-
-                    // Até aqui
                 }
 
                 return Ok();
