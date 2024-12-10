@@ -1,4 +1,5 @@
 ﻿using API.Models;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.InteropServices;
+using System.Security.Policy;
 using System.Web.Http;
 using WebApplication1.Models;
 
@@ -21,7 +23,7 @@ namespace WebApplication1.Controllers {
         #region -- Notas --
 
         // Os métodos POST e Locate (<somiod-locate>, que no fundo é um GET com um header adicional) devem apontar para a "parent resource"
-        // Os métodos GET, PUT e DELETE devem apontar para a "child resource"
+        // Os métodos GET, PUT e DELETE devem apontar para a própria resource
 
         // Quando se apaga algum recurso, a BD imediatamente apaga todos os recursos filhos
 
@@ -42,6 +44,7 @@ namespace WebApplication1.Controllers {
         // O url para notifications é /notif
 
         // Para POSTs e PUTs dentro de um container deve ser mandado um res-type a dizer se é record ou notification
+        // Ouvi outro grupo a falar com o professor e a dizer que também se pode ver se é um ou outro pelo XML e XSD, ele disse que "podia valorizar"
 
         // A professora disse que o name devia ser único no seu contexto, o professor disse que devia ser globamente único
         // Ele disse que podia ser assim porque nas operações de discover podem aparecer nomes iguais
@@ -357,10 +360,11 @@ namespace WebApplication1.Controllers {
                 using (var conn = new SqlConnection(connectionString)) {
                     conn.Open();
 
-                    // Insert record logic here...
+                    // Lógica de inserção aqui
 
 
-
+                    Record newRecordInserted = null;    // Preciso desta variável aqui para a notificação, que é basicamente o "newRecord" mas com as alterações que a BD fez
+                                                        // Possivelmente algo parecido com o que foi feito no DeleteRecord (mas com lógica diferente, porque é um POST em vez de DELETE)
 
                     // Notifications
                     using (var command = new SqlCommand(
@@ -374,17 +378,17 @@ namespace WebApplication1.Controllers {
                         using (var reader = command.ExecuteReader()) {
                             while (reader.Read()) {
                                 Console.WriteLine("Notification: " + reader["name"]);
-                                NotificationResponse notificationResponse = new NotificationResponse {
-                                    record = newRecord,
+                                EventNotification notificationResponse = new EventNotification {
+                                    record = newRecordInserted,
                                     @event = "creation"
                                 };
                                 // HTTP
                                 if (((string)reader["endpoint"]).StartsWith("http://")) {
-
+                                    SendHTTPNotification((string)reader["endpoint"], notificationResponse);
                                 }
                                 // MQTT
                                 else {
-
+                                    SendMQTTNotification((string)reader["endpoint"], notificationResponse);
                                 }
                             }
                         }
@@ -405,19 +409,22 @@ namespace WebApplication1.Controllers {
             try {
                 using (var conn = new SqlConnection(connectionString)) {
                     conn.Open();
-                    using (var command = new SqlCommand(
-                        "DELETE r FROM records r " +
+                    // Vai buscar à base de dados o record que vai ser apagado. Não se apaga logo porque é preciso guardar uma cópia para envinar na notificação
+                    using (var selectCommand = new SqlCommand(
+                        "SELECT r.id, r.name, r.content, r.creation_datetime, r.parent " +
+                        "FROM records r " +
                         "JOIN containers c ON r.parent = c.id " +
                         "JOIN applications a ON c.parent = a.id " +
                         "WHERE a.name = @applicationName " +
                         "AND c.name = @containerName " +
                         "AND r.name = @recordName", conn)) {
-                        command.Parameters.AddWithValue("@applicationName", applicationName);
-                        command.Parameters.AddWithValue("@containerName", containerName);
-                        command.Parameters.AddWithValue("@recordName", recordName);
+                        selectCommand.Parameters.AddWithValue("@applicationName", applicationName);
+                        selectCommand.Parameters.AddWithValue("@containerName", containerName);
+                        selectCommand.Parameters.AddWithValue("@recordName", recordName);
 
-                        using (var reader = command.ExecuteReader()) {
+                        using (var reader = selectCommand.ExecuteReader()) {
                             if (reader.Read()) {
+                                // Guarda o record que vai ser apagado numa variável
                                 deletedRecord = new Record {
                                     id = (int)reader["id"],
                                     name = (string)reader["name"],
@@ -426,41 +433,47 @@ namespace WebApplication1.Controllers {
                                     parent = (int)reader["parent"]
                                 };
                             }
-                            if (deletedRecord == null) {
-                                return NotFound();
-                            }
                         }
                     }
 
-                    // Notifications
-                    using (var command = new SqlCommand(
-                        "SELECT * from notifications n " +
-                        "JOIN containers c on n.parent = c.id " +
+                    if (deletedRecord == null) {
+                        return NotFound();
+                    }
+
+                    // Apaga o record
+                    using (var deleteCommand = new SqlCommand(
+                        "DELETE FROM records " +
+                        "WHERE id = @recordId", conn)) {
+                        deleteCommand.Parameters.AddWithValue("@recordId", deletedRecord.id);
+                        deleteCommand.ExecuteNonQuery();
+                    }
+
+                    // Mandar as notificações
+                    using (var notificationCommand = new SqlCommand(
+                        "SELECT * FROM notifications n " +
+                        "JOIN containers c ON n.parent = c.id " +
                         "WHERE c.name = @containerName " +
                         "AND n.event = 2 " +
-                        "And n.enabled = 1", conn)) {
-                        command.Parameters.AddWithValue("@containerName", containerName);
+                        "AND n.enabled = 1", conn)) {
+                        notificationCommand.Parameters.AddWithValue("@containerName", containerName);
 
-                        using (var reader = command.ExecuteReader()) {
+                        using (var reader = notificationCommand.ExecuteReader()) {
                             while (reader.Read()) {
-                                NotificationResponse notificationResponse = new NotificationResponse {
+                                EventNotification eventNotification = new EventNotification {
                                     record = deletedRecord,
                                     @event = "deletion"
                                 };
                                 // HTTP
                                 if (((string)reader["endpoint"]).StartsWith("http://")) {
-
+                                    SendHTTPNotification((string)reader["endpoint"], eventNotification);
                                 }
                                 // MQTT
                                 else {
-
+                                    SendMQTTNotification((string)reader["endpoint"], eventNotification);
                                 }
-
                             }
                         }
                     }
-
-
                 }
 
                 return Ok();
@@ -470,7 +483,8 @@ namespace WebApplication1.Controllers {
             }
         }
 
-        #endregion
+
+        #endregion  
 
         #region Notification
 
@@ -856,6 +870,20 @@ namespace WebApplication1.Controllers {
         #endregion
 
         #endregion
+
+
+        private void SendHTTPNotification(string endpoint, EventNotification notification) {
+            var client = new RestClient(endpoint);
+            var request = new RestRequest();
+            request.Method = Method.Post;
+            request.AddParameter("application/xml", notification, ParameterType.RequestBody);
+            request.RequestFormat = DataFormat.Xml;
+            client.Execute(request);
+        }
+
+        private void SendMQTTNotification(string endpoint, EventNotification notification) {
+            // Lógica MQTT
+        }
 
 
     }
