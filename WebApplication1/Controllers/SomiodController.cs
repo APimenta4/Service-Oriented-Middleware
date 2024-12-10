@@ -469,7 +469,8 @@ namespace WebApplication1.Controllers {
                                 }
                                 // MQTT
                                 else {
-                                    SendMQTTNotification((string)reader["endpoint"], eventNotification);
+                                    string endpoint = ((string)reader["endpoint"]==null) ? (string)reader["endpoint"] : "api/somiod/" + applicationName + "/" + containerName ;
+                                    SendMQTTNotification(endpoint, eventNotification);
                                 }
                             }
                         }
