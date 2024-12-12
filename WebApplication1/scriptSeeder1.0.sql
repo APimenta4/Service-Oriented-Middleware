@@ -43,6 +43,18 @@ VALUES
     ('Notification9', '2', 'http://endpoint9.com', GETDATE(), 8, 1), 
     ('Notification10', '1', 'http://endpoint10.com', GETDATE(), 1, 1); 
 
+
+-- Mais exemplos, dá jeito para testar as notificações
+INSERT INTO records (name, content, creation_datetime, parent) 
+VALUES
+    ('Record1g', 'Content of Record1', GETDATE(), 1),
+    ('Record1b', 'Content of Record1', GETDATE(), 1),
+    ('Record1a', 'Content of Record1', GETDATE(), 1),
+    ('Record1c', 'Content of Record1', GETDATE(), 1),
+    ('Record1d', 'Content of Record1', GETDATE(), 1),
+    ('Record1e', 'Content of Record1', GETDATE(), 1),
+    ('Record1f', 'Content of Record1', GETDATE(), 1);
+
 -- Para limpar a BD
 DELETE FROM applications;
 

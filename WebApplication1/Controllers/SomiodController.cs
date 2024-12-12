@@ -9,7 +9,13 @@ using System.Net;
 using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Security.Policy;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web.Http;
+using System.Xml;
+using uPLibrary.Networking.M2Mqtt;
+using uPLibrary.Networking.M2Mqtt.Messages;
 using WebApplication1.Models;
 
 namespace WebApplication1.Controllers {
@@ -355,7 +361,7 @@ namespace WebApplication1.Controllers {
 
         [HttpPost]
         [Route("{applicationName}/{containerName}")]
-        public IHttpActionResult PostRecord(string applicationName, string containerName, Record newRecord) {
+        public IHttpActionResult PostRecordAsync(string applicationName, string containerName, Record newRecord) {
             try {
                 using (var conn = new SqlConnection(connectionString)) {
                     conn.Open();
@@ -378,17 +384,18 @@ namespace WebApplication1.Controllers {
                         using (var reader = command.ExecuteReader()) {
                             while (reader.Read()) {
                                 Console.WriteLine("Notification: " + reader["name"]);
-                                EventNotification notificationResponse = new EventNotification {
+                                EventNotification eventNotification = new EventNotification {
                                     record = newRecordInserted,
                                     @event = "creation"
                                 };
                                 // HTTP
                                 if (((string)reader["endpoint"]).StartsWith("http://")) {
-                                    SendHTTPNotification((string)reader["endpoint"], notificationResponse);
+                                    SendHTTPNotification((string)reader["endpoint"], eventNotification);
                                 }
                                 // MQTT
                                 else {
-                                    SendMQTTNotification((string)reader["endpoint"], notificationResponse);
+                                    string channelName = "api/somiod/" + applicationName + "/" + containerName;
+                                    SendMQTTNotification(channelName, (string)reader["endpoint"], eventNotification);
                                 }
                             }
                         }
@@ -469,8 +476,8 @@ namespace WebApplication1.Controllers {
                                 }
                                 // MQTT
                                 else {
-                                    string endpoint = ((string)reader["endpoint"]==null) ? (string)reader["endpoint"] : "api/somiod/" + applicationName + "/" + containerName ;
-                                    SendMQTTNotification(endpoint, eventNotification);
+                                    string channelName = "api/somiod/" + applicationName + "/" + containerName;
+                                    SendMQTTNotification(channelName, (string)reader["endpoint"], eventNotification);
                                 }
                             }
                         }
@@ -872,19 +879,84 @@ namespace WebApplication1.Controllers {
 
         #endregion
 
-
+        #region HTTP/MQTT Notifications
         private void SendHTTPNotification(string endpoint, EventNotification notification) {
-            var client = new RestClient(endpoint);
-            var request = new RestRequest();
-            request.Method = Method.Post;
-            request.AddParameter("application/xml", notification, ParameterType.RequestBody);
-            request.RequestFormat = DataFormat.Xml;
-            client.Execute(request);
+            try {
+                var client = new RestClient(endpoint);
+                var request = new RestRequest();
+                request.Method = Method.Post;
+                request.AddParameter("application/xml", notification, ParameterType.RequestBody);
+                request.RequestFormat = DataFormat.Xml;
+                var response = client.Execute(request);
+
+                // TODO isto provavelmente não é suposto mandar exceção
+                if (!response.IsSuccessful) {
+                    throw new Exception("Error sending HTTP notification");
+                }
+            }
+            catch (Exception ex) {
+                throw new Exception("Error sending HTTP notification", ex);
+            }
         }
 
-        private void SendMQTTNotification(string endpoint, EventNotification notification) {
-            // Lógica MQTT
+
+        public void SendMQTTNotification(string channelName, string brokerEndpoint, EventNotification notification) {
+            try {
+                MqttClient mClient = new MqttClient(IPAddress.Parse(brokerEndpoint));
+                mClient.Connect(Guid.NewGuid().ToString());
+
+                #region Define XML to send
+                XmlDocument xmlDoc = new XmlDocument();
+
+                XmlElement root = xmlDoc.CreateElement("EventNotification");
+                xmlDoc.AppendChild(root);
+
+                XmlElement recordElement = xmlDoc.CreateElement("record");
+
+                XmlElement idElement = xmlDoc.CreateElement("id");
+                idElement.InnerText = notification.record.id.ToString();
+                recordElement.AppendChild(idElement);
+
+                XmlElement nameElement = xmlDoc.CreateElement("name");
+                nameElement.InnerText = notification.record.name;
+                recordElement.AppendChild(nameElement);
+
+                XmlElement contentElement = xmlDoc.CreateElement("content");
+                contentElement.InnerText = notification.record.content;
+                recordElement.AppendChild(contentElement);
+
+                XmlElement creationDateTimeElement = xmlDoc.CreateElement("creation_datetime");
+                creationDateTimeElement.InnerText = notification.record.creation_datetime.ToString("yyyy-MM-ddTHH:mm:ss.fffffff");
+                recordElement.AppendChild(creationDateTimeElement);
+
+                XmlElement parentElement = xmlDoc.CreateElement("parent");
+                parentElement.InnerText = notification.record.parent.ToString();
+                recordElement.AppendChild(parentElement);
+
+                root.AppendChild(recordElement);
+
+                XmlElement eventElement = xmlDoc.CreateElement("event");
+                eventElement.InnerText = notification.@event;
+                root.AppendChild(eventElement);
+
+                string payload = xmlDoc.OuterXml;
+
+                #endregion
+
+                // Adiciona um evento para disconectar quando a mensagem é publicada. Isto é importante porque assim garante que o Publish tem de ser concluído antes de chamar o Disconnect
+                mClient.MqttMsgPublished += (sender, e) => {
+                    mClient.Disconnect();
+                };
+                mClient.Publish(channelName, Encoding.UTF8.GetBytes(payload));
+            }
+            catch (Exception ex) {
+                // TODO isto provavelmente não é suposto mandar exceção
+                throw new Exception("Error sending MQTT notification", ex);
+            }
         }
+
+        #endregion
+
 
 
     }

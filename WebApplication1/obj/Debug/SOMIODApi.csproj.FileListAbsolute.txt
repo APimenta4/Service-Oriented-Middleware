@@ -85,3 +85,5 @@ C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\bin\System.Text.Encodings.
 C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\bin\System.Text.Json.xml
 C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\bin\System.Threading.Tasks.Extensions.xml
 C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\bin\System.ValueTuple.xml
+C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\bin\M2Mqtt.Net.dll
+C:\Users\Utilizador\Desktop\IS\SOMIOD\WebApplication1\bin\M2Mqtt.Net.pdb
