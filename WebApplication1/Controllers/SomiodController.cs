@@ -383,10 +383,6 @@ namespace WebApplication1.Controllers {
         {
             // Update the container
             using (var updateCommand = new SqlCommand(
-                 //@"UPDATE applications 
-                 //  SET name = @newName 
-                 //  OUTPUT INSERTED.id, INSERTED.name, INSERTED.creation_datetime 
-                 //  WHERE name = @applicationName"
                  @"UPDATE containers
                    SET name = @newName
                    OUTPUT INSERTED.id, INSERTED.name, INSERTED.creation_datetime, INSERTED.parent
@@ -414,6 +410,7 @@ namespace WebApplication1.Controllers {
                     }
                 }
             }
+            return Ok(updatedContainer);
         }
 
         [HttpDelete]
