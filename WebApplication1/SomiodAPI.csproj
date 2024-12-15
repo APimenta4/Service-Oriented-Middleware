@@ -137,6 +137,18 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App_Data\ApicationSchema.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="App_Data\ContainerSchema.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="App_Data\NotificationSchema.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="App_Data\RecordSchema.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
