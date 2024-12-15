@@ -13,10 +13,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.UI.WebControls.WebParts;
 using System.Xml;
+using System.Xml.Linq;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
 using WebApplication1.Models;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace WebApplication1.Controllers {
 
@@ -68,6 +71,12 @@ namespace WebApplication1.Controllers {
 
         #region Application
 
+        private string GenerateTimestampName(string baseName)
+        {
+            DateTime timestamp = DateTime.Now;
+            return $"{baseName}_{timestamp:yyyyMMdd_HHmmss}";
+        }
+
         [HttpGet]
         [Route("{applicationName}")]
         public IHttpActionResult GetApplication(string applicationName) {
@@ -77,7 +86,7 @@ namespace WebApplication1.Controllers {
                 return GetResourcesByHeader(applicationName);
             }
 
-            Application application = null;
+            Models.Application application = null;
             try {
                 using (var conn = new SqlConnection(connectionString)) {
                     conn.Open();
@@ -86,7 +95,7 @@ namespace WebApplication1.Controllers {
 
                         using (var reader = command.ExecuteReader()) {
                             if (reader.Read()) {
-                                application = new Application {
+                                application = new Models.Application {
                                     id = (int)reader["id"],
                                     name = (string)reader["name"],
                                     creation_datetime = (DateTime)reader["creation_datetime"]
@@ -110,7 +119,7 @@ namespace WebApplication1.Controllers {
 
         [HttpPost]
         [Route()]
-        public IHttpActionResult PostApplication(Application newApplication) {
+        public IHttpActionResult PostApplication(Models.Application newApplication) {
             if (newApplication == null || string.IsNullOrEmpty(newApplication.name)) {
                 return BadRequest();
             }
@@ -153,7 +162,67 @@ namespace WebApplication1.Controllers {
             }
         }
 
-        // PUT
+
+
+        [HttpPut]
+        [Route("{applicationName}")]
+        public IHttpActionResult PutApplication(string applicationName, Models.Application updatedApplication)
+        {
+            if (updatedApplication == null || string.IsNullOrEmpty(updatedApplication.name))
+            {
+                return BadRequest("Invalid application data.");
+            }
+
+            try
+            {
+                using (var conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    try
+                    {
+                        return UpdateApplication(applicationName, updatedApplication, conn);
+                    }
+                    catch (SqlException e) when (e.Number == 2627)
+                    {
+                        updatedApplication.name = GenerateTimestampName(updatedApplication.name);
+                        return UpdateApplication(applicationName, updatedApplication, conn);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return InternalServerError();
+            }
+        }
+
+        private IHttpActionResult UpdateApplication(string applicationName, Models.Application updatedApplication, SqlConnection conn)
+        {
+            using (var updateCommand = new SqlCommand(
+                @"UPDATE applications 
+                  SET name = @newName
+                  OUTPUT INSERTED.id, INSERTED.name, INSERTED.creation_datetime
+                  WHERE name = @applicationName", conn))
+            {
+                updateCommand.Parameters.AddWithValue("@newName", updatedApplication.name);
+                updateCommand.Parameters.AddWithValue("@applicationName", applicationName);
+
+                using (var reader = updateCommand.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        updatedApplication.id = (int)reader["id"];
+                        updatedApplication.name = (string)reader["name"];
+                        updatedApplication.creation_datetime = (DateTime)reader["creation_datetime"];
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+                }
+            }
+
+            return Ok(updatedApplication);
+        }
 
 
 
@@ -279,8 +348,73 @@ namespace WebApplication1.Controllers {
             }
         }
 
-        // PUT
+        [HttpPut]
+        [Route("{applicationName}/{containerName}")]
+        public IHttpActionResult PutContainer(string applicationName, string containerName, Container updatedContainer)
+        {
+            if (updatedContainer == null || string.IsNullOrEmpty(updatedContainer.name))
+            {
+                return BadRequest("Invalid container data.");
+            }
 
+            try
+            {
+                using (var conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    try
+                    {
+                        return UpdateContainer(applicationName, containerName, updatedContainer, conn);
+                    }
+                    catch (SqlException e) when (e.Number == 2627)
+                    {
+                        updatedContainer.name = GenerateTimestampName(updatedContainer.name);
+                        return UpdateContainer(applicationName, containerName, updatedContainer, conn);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return InternalServerError();
+            }
+        }
+
+        private IHttpActionResult UpdateContainer(string applicationName, string containerName, Container updatedContainer, SqlConnection conn)
+        {
+            // Update the container
+            using (var updateCommand = new SqlCommand(
+                 //@"UPDATE applications 
+                 //  SET name = @newName 
+                 //  OUTPUT INSERTED.id, INSERTED.name, INSERTED.creation_datetime 
+                 //  WHERE name = @applicationName"
+                 @"UPDATE containers
+                   SET name = @newName
+                   OUTPUT INSERTED.id, INSERTED.name, INSERTED.creation_datetime, INSERTED.parent
+                   FROM containers c
+                   JOIN applications a ON c.parent = a.id
+                   WHERE c.name = @containerName
+                   AND a.name = @applicationName", conn))
+            {
+                updateCommand.Parameters.AddWithValue("@newName", updatedContainer.name);
+                updateCommand.Parameters.AddWithValue("@containerName", containerName);
+                updateCommand.Parameters.AddWithValue("@applicationName", applicationName);
+
+                using (var reader = updateCommand.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        updatedContainer.id = (int)reader["id"];
+                        updatedContainer.name = (string)reader["name"];
+                        updatedContainer.creation_datetime = (DateTime)reader["creation_datetime"];
+                        updatedContainer.id = (int)reader["parent"];
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+                }
+            }
+        }
 
         [HttpDelete]
         [Route("{applicationName}/{containerName}")]
