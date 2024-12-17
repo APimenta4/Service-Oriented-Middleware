@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.EnterpriseServices.Internal;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -12,10 +13,13 @@ using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Http;
 using System.Web.UI.WebControls.WebParts;
 using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
 using WebApplication1.Models;
@@ -67,15 +71,64 @@ namespace WebApplication1.Controllers {
         // No enunciado diz que não se pode dar update às notifications, mas elas têm de ter um campo "enabled"
         // Eu nas notificações já faço a validação se a notificação está "enabled", por isso é só mesmo fazer o método PUT
 
-        #endregion 
+        #endregion
 
-        #region Application
 
+
+        #region Funcões Auxiliares
+
+        /// <summary>
+        /// Validates an XML document against an XSD schema file.
+        /// </summary>
+        /// <param name="xml">The XML document to validate.</param>
+        /// <param name="xsdPath">The file path to the XSD schema.</param>
+        /// <returns>True if the XML document is valid; otherwise, false.</returns>
+        /// <exception cref="FileNotFoundException">Thrown if the XSD file is not found at the specified path.</exception>
+        /// <exception cref="IOException">Thrown if there is an issue reading the XSD file.</exception>
+        /// <exception cref="XmlSchemaValidationException">Thrown if the XML document fails schema validation.</exception>
+        /// <exception cref="XmlException">Thrown if the XML schema or document is invalid.</exception>
+        public bool ValidateXmlAgainstSchema(XmlDocument xml, string xsdPath)
+        {
+            string xsd;
+            using (var reader = new StreamReader(xsdPath))
+            {
+                xsd = reader.ReadToEnd();
+            }
+            try
+            {
+                var schemaSet = new XmlSchemaSet();
+                schemaSet.Add(null, XmlReader.Create(new StringReader(xsd)));
+                xml.Schemas = schemaSet;
+                xml.Validate((sender, e) =>
+                {
+                    throw new XmlSchemaValidationException(e.Message);
+                });
+                return true;
+            }
+            catch (XmlSchemaValidationException)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Generates a unique name by appending a timestamp to the base name.
+        /// </summary>
+        /// <param name="baseName">The base name to which the timestamp will be appended.</param>
+        /// <returns>A string combining the base name and the current timestamp in the format 'yyyyMMdd_HHmmss'.
+        /// For example: If <paramref name="baseName"/> is "model", the result will be "model_20240617_103045".
+        /// </returns>
         private string GenerateTimestampName(string baseName)
         {
             DateTime timestamp = DateTime.Now;
             return $"{baseName}_{timestamp:yyyyMMdd_HHmmss}";
         }
+
+        #endregion
+
+
+
+        #region Application
 
         [HttpGet]
         [Route("{applicationName}")]
@@ -163,18 +216,33 @@ namespace WebApplication1.Controllers {
         }
 
 
-
         [HttpPut]
         [Route("{applicationName}")]
-        public IHttpActionResult PutApplication(string applicationName, Models.Application updatedApplication)
+        public IHttpActionResult PutApplication(string applicationName, [FromBody] XmlDocument xmlData)
         {
-            if (updatedApplication == null || string.IsNullOrEmpty(updatedApplication.name))
-            {
-                return BadRequest("Invalid application data.");
-            }
-
             try
             {
+                if (xmlData == null)
+                {
+                    return BadRequest("Invalid application data.");
+                }
+
+                // Validate the XML data against the XSD schema
+                string xsdPath = HttpContext.Current.Server.MapPath("~/App_Data/ApplicationSchema.xsd");
+                if (!ValidateXmlAgainstSchema(xmlData, xsdPath))
+                {
+                    return BadRequest("Invalid XML data format.");
+                }
+
+                // Deserialize XML data to model
+                Models.Application updatedApplication;
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(Models.Application));
+                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement))
+                {
+                    updatedApplication = (Models.Application)xmlSerializer.Deserialize(xmlNodeReader);
+                }
+                
+                // Update model
                 using (var conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
@@ -184,6 +252,7 @@ namespace WebApplication1.Controllers {
                     }
                     catch (SqlException e) when (e.Number == 2627)
                     {
+                        // Add timestamp in model name 
                         updatedApplication.name = GenerateTimestampName(updatedApplication.name);
                         return UpdateApplication(applicationName, updatedApplication, conn);
                     }
@@ -197,15 +266,16 @@ namespace WebApplication1.Controllers {
 
         private IHttpActionResult UpdateApplication(string applicationName, Models.Application updatedApplication, SqlConnection conn)
         {
-            using (var updateCommand = new SqlCommand(
-                @"UPDATE applications 
-                  SET name = @newName
-                  OUTPUT INSERTED.id, INSERTED.name, INSERTED.creation_datetime
-                  WHERE name = @applicationName", conn))
+            string sqlQuery = @"
+                UPDATE applications 
+                SET name = @newName
+                OUTPUT INSERTED.id, INSERTED.name, INSERTED.creation_datetime
+                WHERE name = @applicationName";
+
+            using (var updateCommand = new SqlCommand(sqlQuery, conn))
             {
                 updateCommand.Parameters.AddWithValue("@newName", updatedApplication.name);
                 updateCommand.Parameters.AddWithValue("@applicationName", applicationName);
-
                 using (var reader = updateCommand.ExecuteReader())
                 {
                     if (reader.Read())
@@ -220,10 +290,8 @@ namespace WebApplication1.Controllers {
                     }
                 }
             }
-
             return Ok(updatedApplication);
         }
-
 
 
         [HttpDelete]
@@ -253,6 +321,8 @@ namespace WebApplication1.Controllers {
         }
 
         #endregion
+
+
 
         #region Container
 
@@ -301,9 +371,11 @@ namespace WebApplication1.Controllers {
             }
         }
 
+
         // POST
         // TODO
         // INCOMPLETO, COPIEI DO POSTAPPLICATION E COMECEI A MUDAR
+
 
         [HttpPost]
         [Route("{applicationName}")]
@@ -350,15 +422,31 @@ namespace WebApplication1.Controllers {
 
         [HttpPut]
         [Route("{applicationName}/{containerName}")]
-        public IHttpActionResult PutContainer(string applicationName, string containerName, Container updatedContainer)
+        public IHttpActionResult PutContainer(string applicationName, string containerName, [FromBody] XmlDocument xmlData)
         {
-            if (updatedContainer == null || string.IsNullOrEmpty(updatedContainer.name))
-            {
-                return BadRequest("Invalid container data.");
-            }
-
             try
             {
+                if (xmlData == null)
+                {
+                    return BadRequest("Invalid container data.");
+                }
+
+                // Validate the XML data against the XSD schema
+                string xsdPath = HttpContext.Current.Server.MapPath("~/App_Data/ContainerSchema.xsd");
+                if (!ValidateXmlAgainstSchema(xmlData, xsdPath))
+                {
+                    return BadRequest("Invalid XML data format.");
+                }
+
+                // Deserialize XML data to model
+                Container updatedContainer;
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(Container));
+                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement))
+                {
+                    updatedContainer = (Container)xmlSerializer.Deserialize(xmlNodeReader);
+                }
+                
+                // Update model
                 using (var conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
@@ -368,6 +456,7 @@ namespace WebApplication1.Controllers {
                     }
                     catch (SqlException e) when (e.Number == 2627)
                     {
+                        // Add timestamp in model name 
                         updatedContainer.name = GenerateTimestampName(updatedContainer.name);
                         return UpdateContainer(applicationName, containerName, updatedContainer, conn);
                     }
@@ -381,15 +470,16 @@ namespace WebApplication1.Controllers {
 
         private IHttpActionResult UpdateContainer(string applicationName, string containerName, Container updatedContainer, SqlConnection conn)
         {
-            // Update the container
-            using (var updateCommand = new SqlCommand(
-                 @"UPDATE containers
-                   SET name = @newName
-                   OUTPUT INSERTED.id, INSERTED.name, INSERTED.creation_datetime, INSERTED.parent
-                   FROM containers c
-                   JOIN applications a ON c.parent = a.id
-                   WHERE c.name = @containerName
-                   AND a.name = @applicationName", conn))
+            string sqlQuery = @"
+                UPDATE containers
+                SET name = @newName
+                OUTPUT INSERTED.id, INSERTED.name, INSERTED.creation_datetime, INSERTED.parent
+                FROM containers c
+                JOIN applications a ON c.parent = a.id
+                WHERE c.name = @containerName
+                AND a.name = @applicationName";
+            
+            using (var updateCommand = new SqlCommand(sqlQuery, conn))
             {
                 updateCommand.Parameters.AddWithValue("@newName", updatedContainer.name);
                 updateCommand.Parameters.AddWithValue("@containerName", containerName);
@@ -402,7 +492,7 @@ namespace WebApplication1.Controllers {
                         updatedContainer.id = (int)reader["id"];
                         updatedContainer.name = (string)reader["name"];
                         updatedContainer.creation_datetime = (DateTime)reader["creation_datetime"];
-                        updatedContainer.id = (int)reader["parent"];
+                        updatedContainer.parent = (int)reader["parent"];
                     }
                     else
                     {

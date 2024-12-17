@@ -137,7 +137,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App_Data\ApicationSchema.xsd">
+    <None Include="App_Data\ApplicationSchema.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="App_Data\ContainerSchema.xsd">
