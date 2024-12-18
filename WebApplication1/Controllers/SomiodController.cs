@@ -590,11 +590,13 @@ namespace WebApplication1.Controllers {
                 string notificationXsdPath = HttpContext.Current.Server.MapPath("~/App_Data/NotificationSchema.xsd");
                 string recordXsdPath = HttpContext.Current.Server.MapPath("~/App_Data/RecordSchema.xsd");
 
-                if (ValidateXmlAgainstSchema(xmlData, notificationXsdPath)) {
-                    return HandleNotification(applicationName, containerName, xmlData);
-                }
-                else if (ValidateXmlAgainstSchema(xmlData, recordXsdPath)) {
+                if (ValidateXmlAgainstSchema(xmlData, recordXsdPath))
+                {
                     return HandleRecord(applicationName, containerName, xmlData);
+                }
+                else if (ValidateXmlAgainstSchema(xmlData, notificationXsdPath))
+                {
+                    return HandleNotification(applicationName, containerName, xmlData);
                 }
                 else {
                     return BadRequest("Invalid XML data format.");
