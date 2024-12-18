@@ -73,8 +73,6 @@ namespace WebApplication1.Controllers {
 
         #endregion
 
-
-
         #region Funcões Auxiliares
 
         /// <summary>
@@ -87,26 +85,21 @@ namespace WebApplication1.Controllers {
         /// <exception cref="IOException">Thrown if there is an issue reading the XSD file.</exception>
         /// <exception cref="XmlSchemaValidationException">Thrown if the XML document fails schema validation.</exception>
         /// <exception cref="XmlException">Thrown if the XML schema or document is invalid.</exception>
-        public bool ValidateXmlAgainstSchema(XmlDocument xml, string xsdPath)
-        {
+        public bool ValidateXmlAgainstSchema(XmlDocument xml, string xsdPath) {
             string xsd;
-            using (var reader = new StreamReader(xsdPath))
-            {
+            using (var reader = new StreamReader(xsdPath)) {
                 xsd = reader.ReadToEnd();
             }
-            try
-            {
+            try {
                 var schemaSet = new XmlSchemaSet();
                 schemaSet.Add(null, XmlReader.Create(new StringReader(xsd)));
                 xml.Schemas = schemaSet;
-                xml.Validate((sender, e) =>
-                {
+                xml.Validate((sender, e) => {
                     throw new XmlSchemaValidationException(e.Message);
                 });
                 return true;
             }
-            catch (XmlSchemaValidationException)
-            {
+            catch (XmlSchemaValidationException) {
                 return false;
             }
         }
@@ -118,15 +111,12 @@ namespace WebApplication1.Controllers {
         /// <returns>A string combining the base name and the current timestamp in the format 'yyyyMMdd_HHmmss'.
         /// For example: If <paramref name="baseName"/> is "model", the result will be "model_20240617_103045".
         /// </returns>
-        private string GenerateTimestampName(string baseName)
-        {
+        private string GenerateTimestampName(string baseName) {
             DateTime timestamp = DateTime.Now;
             return $"{baseName}_{timestamp:yyyyMMdd_HHmmss}";
         }
 
         #endregion
-
-
 
         #region Application
 
@@ -172,65 +162,54 @@ namespace WebApplication1.Controllers {
 
         [HttpPost]
         [Route()]
-        public IHttpActionResult PostApplication([FromBody] XmlDocument xmlData)
-        {
-            try
-            {
+        public IHttpActionResult PostApplication([FromBody] XmlDocument xmlData) {
+            try {
                 // applicationName com o paramentro do url e o xmlData com o body que esta a ser enviado(onde mandamos o novo modelo)
-                if (xmlData == null)
-                {
+                if (xmlData == null) {
                     return BadRequest("Invalid application data.");
                 }
 
                 // Validas o XML enviado no body com o XSD
                 string xsdPath = HttpContext.Current.Server.MapPath("~/App_Data/ApplicationSchema.xsd");
-                if (!ValidateXmlAgainstSchema(xmlData, xsdPath))
-                {
+                if (!ValidateXmlAgainstSchema(xmlData, xsdPath)) {
                     return BadRequest("Invalid XML data format.");
                 }
 
                 // passas o XML para o modelo Application
                 Models.Application newApplication;
                 XmlSerializer xmlSerializer = new XmlSerializer(typeof(Models.Application));
-                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement))
-                {
+                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement)) {
                     newApplication = (Models.Application)xmlSerializer.Deserialize(xmlNodeReader);
                 }
 
                 // Acrecentas os valores que o sistema coloca
                 newApplication.creation_datetime = DateTime.Now;
 
-                using (var connection = new SqlConnection(connectionString))
-                {
+                using (var connection = new SqlConnection(connectionString)) {
                     connection.Open();
                     // tenta inserir na BD uma nova aplicação
-                    try
-                    {
+                    try {
                         return CreateApplication(newApplication, connection);
                     }
 
-                    catch(SqlException e) when(e.Number == 2627)
-                    {
+                    catch (SqlException e) when (e.Number == 2627) {
                         // Add timestamp in model name 
                         newApplication.name = GenerateTimestampName(newApplication.name);
                         return CreateApplication(newApplication, connection);
                     }
                 }
             }
-            catch (Exception)
-            {
+            catch (Exception) {
                 return InternalServerError();
             }
         }
 
-        private IHttpActionResult CreateApplication(Models.Application newApplication, SqlConnection conn)
-        {
+        private IHttpActionResult CreateApplication(Models.Application newApplication, SqlConnection conn) {
             string sqlQuery = @"
                 INSERT INTO applications (name, creation_datetime) OUTPUT INSERTED.id 
                 VALUES (@name, @creation_datetime)";
 
-            using (var command = new SqlCommand(sqlQuery, conn))
-            {
+            using (var command = new SqlCommand(sqlQuery, conn)) {
                 command.Parameters.AddWithValue("@name", newApplication.name);
                 command.Parameters.AddWithValue("@creation_datetime", newApplication.creation_datetime);
                 newApplication.id = (int)command.ExecuteScalar();
@@ -241,74 +220,60 @@ namespace WebApplication1.Controllers {
 
         [HttpPut]
         [Route("{applicationName}")]
-        public IHttpActionResult PutApplication(string applicationName, [FromBody] XmlDocument xmlData)
-        {
-            try
-            {
-                if (xmlData == null)
-                {
+        public IHttpActionResult PutApplication(string applicationName, [FromBody] XmlDocument xmlData) {
+            try {
+                if (xmlData == null) {
                     return BadRequest("Invalid application data.");
                 }
 
                 // Validate the XML data against the XSD schema
                 string xsdPath = HttpContext.Current.Server.MapPath("~/App_Data/ApplicationSchema.xsd");
-                if (!ValidateXmlAgainstSchema(xmlData, xsdPath))
-                {
+                if (!ValidateXmlAgainstSchema(xmlData, xsdPath)) {
                     return BadRequest("Invalid XML data format.");
                 }
 
                 // Deserialize XML data to model
                 Models.Application updatedApplication;
                 XmlSerializer xmlSerializer = new XmlSerializer(typeof(Models.Application));
-                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement))
-                {
+                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement)) {
                     updatedApplication = (Models.Application)xmlSerializer.Deserialize(xmlNodeReader);
                 }
-                
+
                 // Update model
-                using (var conn = new SqlConnection(connectionString))
-                {
+                using (var conn = new SqlConnection(connectionString)) {
                     conn.Open();
-                    try
-                    {
+                    try {
                         return UpdateApplication(applicationName, updatedApplication, conn);
                     }
-                    catch (SqlException e) when (e.Number == 2627)
-                    {
+                    catch (SqlException e) when (e.Number == 2627) {
                         // Add timestamp in model name 
                         updatedApplication.name = GenerateTimestampName(updatedApplication.name);
                         return UpdateApplication(applicationName, updatedApplication, conn);
                     }
                 }
             }
-            catch (Exception)
-            {
+            catch (Exception) {
                 return InternalServerError();
             }
         }
 
-        private IHttpActionResult UpdateApplication(string applicationName, Models.Application updatedApplication, SqlConnection conn)
-        {
+        private IHttpActionResult UpdateApplication(string applicationName, Models.Application updatedApplication, SqlConnection conn) {
             string sqlQuery = @"
                 UPDATE applications 
                 SET name = @newName
                 OUTPUT INSERTED.id, INSERTED.name, INSERTED.creation_datetime
                 WHERE name = @applicationName";
 
-            using (var updateCommand = new SqlCommand(sqlQuery, conn))
-            {
+            using (var updateCommand = new SqlCommand(sqlQuery, conn)) {
                 updateCommand.Parameters.AddWithValue("@newName", updatedApplication.name);
                 updateCommand.Parameters.AddWithValue("@applicationName", applicationName);
-                using (var reader = updateCommand.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
+                using (var reader = updateCommand.ExecuteReader()) {
+                    if (reader.Read()) {
                         updatedApplication.id = (int)reader["id"];
                         updatedApplication.name = (string)reader["name"];
                         updatedApplication.creation_datetime = (DateTime)reader["creation_datetime"];
                     }
-                    else
-                    {
+                    else {
                         return NotFound();
                     }
                 }
@@ -343,8 +308,6 @@ namespace WebApplication1.Controllers {
         }
 
         #endregion
-
-
 
         #region Container
 
@@ -395,125 +358,124 @@ namespace WebApplication1.Controllers {
 
 
         [HttpPost]
-        [Route()]
-        public IHttpActionResult PostContainer([FromBody] XmlDocument xmlData)
-        {
-            try
-            {
+        [Route("{applicationName}")]
+        public IHttpActionResult PostContainer(string applicationName, [FromBody] XmlDocument xmlData) {
+            try {
                 // containerName com o paramentro do url e o xmlData com o body que esta a ser enviado(onde mandamos o novo modelo)
-                if (xmlData == null)
-                {
+                if (xmlData == null) {
                     return BadRequest("Invalid application data.");
                 }
 
                 // Validas o XML enviado no body com o XSD
                 string xsdPath = HttpContext.Current.Server.MapPath("~/App_Data/ContainerSchema.xsd");
-                if (!ValidateXmlAgainstSchema(xmlData, xsdPath))
-                {
+                if (!ValidateXmlAgainstSchema(xmlData, xsdPath)) {
                     return BadRequest("Invalid XML data format.");
                 }
 
                 // passas o XML para o modelo Container
                 Models.Container newContainer;
                 XmlSerializer xmlSerializer = new XmlSerializer(typeof(Models.Container));
-                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement))
-                {
+                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement)) {
                     newContainer = (Models.Container)xmlSerializer.Deserialize(xmlNodeReader);
                 }
 
                 // Acrecentas os valores que o sistema coloca
                 newContainer.creation_datetime = DateTime.Now;
 
-                using (var connection = new SqlConnection(connectionString))
-                {
+                using (var connection = new SqlConnection(connectionString)) {
                     connection.Open();
                     // tenta inserir na BD uma nova aplicação
-                    try
-                    {
-                        return CreateContainer(newContainer, connection);
+                    try {
+                        return CreateContainer(applicationName, newContainer, connection);
                     }
 
-                    catch (SqlException e) when (e.Number == 2627)
-                    {
+                    catch (SqlException e) when (e.Number == 2627) {
                         // Add timestamp in model name 
                         newContainer.name = GenerateTimestampName(newContainer.name);
-                        return CreateContainer(newContainer, connection);
+                        return CreateContainer(applicationName, newContainer, connection);
                     }
                 }
             }
-            catch (Exception)
-            {
+            catch (Exception) {
                 return InternalServerError();
             }
         }
 
-        private IHttpActionResult CreateContainer(Models.Container newContainer, SqlConnection conn)
-        {
-            string sqlQuery = @"INSERT INTO containers (name, creation_datetime, parent) OUTPUT INSERTED.id 
-                                VALUES (@name, @creation_datetime, @parent)";
 
-            using (var command = new SqlCommand(sqlQuery, conn))
-            {
+        private IHttpActionResult CreateContainer(string applicationName, Container newContainer, SqlConnection conn) {
+            string getApplicationIdQuery = "SELECT id FROM applications WHERE name = @applicationName";
+            int applicationId;
+            using (var getCommand = new SqlCommand(getApplicationIdQuery, conn)) {
+                getCommand.Parameters.AddWithValue("@applicationName", applicationName);
+                object result = getCommand.ExecuteScalar();
+                if (result == null) {
+                    return NotFound(); // Return 404 if the application name is not found
+                }
+                applicationId = (int)result;
+            }
+
+            // Set the application ID as the parent of the new container
+            newContainer.parent = applicationId;
+
+            // Query to insert the new container
+            string sqlQuery = @"INSERT INTO containers (name, creation_datetime, parent) OUTPUT INSERTED.id 
+                        VALUES (@name, @creation_datetime, @parent)";
+
+            using (var command = new SqlCommand(sqlQuery, conn)) {
                 command.Parameters.AddWithValue("@name", newContainer.name);
                 command.Parameters.AddWithValue("@creation_datetime", newContainer.creation_datetime);
                 command.Parameters.AddWithValue("@parent", newContainer.parent);
                 newContainer.id = (int)command.ExecuteScalar();
-
             }
+
             return Created("", newContainer);
         }
 
 
+
+
+
+
         [HttpPut]
         [Route("{applicationName}/{containerName}")]
-        public IHttpActionResult PutContainer(string applicationName, string containerName, [FromBody] XmlDocument xmlData)
-        {
-            try
-            {
-                if (xmlData == null)
-                {
+        public IHttpActionResult PutContainer(string applicationName, string containerName, [FromBody] XmlDocument xmlData) {
+            try {
+                if (xmlData == null) {
                     return BadRequest("Invalid container data.");
                 }
 
                 // Validate the XML data against the XSD schema
                 string xsdPath = HttpContext.Current.Server.MapPath("~/App_Data/ContainerSchema.xsd");
-                if (!ValidateXmlAgainstSchema(xmlData, xsdPath))
-                {
+                if (!ValidateXmlAgainstSchema(xmlData, xsdPath)) {
                     return BadRequest("Invalid XML data format.");
                 }
 
                 // Deserialize XML data to model
                 Container updatedContainer;
                 XmlSerializer xmlSerializer = new XmlSerializer(typeof(Container));
-                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement))
-                {
+                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement)) {
                     updatedContainer = (Container)xmlSerializer.Deserialize(xmlNodeReader);
                 }
-                
+
                 // Update model
-                using (var conn = new SqlConnection(connectionString))
-                {
+                using (var conn = new SqlConnection(connectionString)) {
                     conn.Open();
-                    try
-                    {
+                    try {
                         return UpdateContainer(applicationName, containerName, updatedContainer, conn);
                     }
-                    catch (SqlException e) when (e.Number == 2627)
-                    {
+                    catch (SqlException e) when (e.Number == 2627) {
                         // Add timestamp in model name 
                         updatedContainer.name = GenerateTimestampName(updatedContainer.name);
                         return UpdateContainer(applicationName, containerName, updatedContainer, conn);
                     }
                 }
             }
-            catch (Exception)
-            {
+            catch (Exception) {
                 return InternalServerError();
             }
         }
 
-        private IHttpActionResult UpdateContainer(string applicationName, string containerName, Container updatedContainer, SqlConnection conn)
-        {
+        private IHttpActionResult UpdateContainer(string applicationName, string containerName, Container updatedContainer, SqlConnection conn) {
             string sqlQuery = @"
                 UPDATE containers
                 SET name = @newName
@@ -522,24 +484,20 @@ namespace WebApplication1.Controllers {
                 JOIN applications a ON c.parent = a.id
                 WHERE c.name = @containerName
                 AND a.name = @applicationName";
-            
-            using (var updateCommand = new SqlCommand(sqlQuery, conn))
-            {
+
+            using (var updateCommand = new SqlCommand(sqlQuery, conn)) {
                 updateCommand.Parameters.AddWithValue("@newName", updatedContainer.name);
                 updateCommand.Parameters.AddWithValue("@containerName", containerName);
                 updateCommand.Parameters.AddWithValue("@applicationName", applicationName);
 
-                using (var reader = updateCommand.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
+                using (var reader = updateCommand.ExecuteReader()) {
+                    if (reader.Read()) {
                         updatedContainer.id = (int)reader["id"];
                         updatedContainer.name = (string)reader["name"];
                         updatedContainer.creation_datetime = (DateTime)reader["creation_datetime"];
                         updatedContainer.parent = (int)reader["parent"];
                     }
-                    else
-                    {
+                    else {
                         return NotFound();
                     }
                 }
@@ -568,7 +526,7 @@ namespace WebApplication1.Controllers {
                         }
                     }
                 }
-               return StatusCode(HttpStatusCode.NoContent);
+                return StatusCode(HttpStatusCode.NoContent);
             }
             catch (Exception) {
                 return InternalServerError();
@@ -622,67 +580,124 @@ namespace WebApplication1.Controllers {
             }
         }
 
+        // Handles both notifications and records
 
         [HttpPost]
-        [Route()]
-        public IHttpActionResult PostRecord(string applicationName, string containerName, [FromBody] XmlDocument xmlData)
-        {
-            try
-            {
-                // recordName com o paramentro do url e o xmlData com o body que esta a ser enviado(onde mandamos o novo modelo)
-                if (xmlData == null)
-                {
+        [Route("{applicationName}/{containerName}")]
+        public IHttpActionResult PostData(string applicationName, string containerName, [FromBody] XmlDocument xmlData) {
+            try {
+                if (xmlData == null) {
                     return BadRequest("Invalid application data.");
                 }
 
-                // Validas o XML enviado no body com o XSD
-                string xsdPath = HttpContext.Current.Server.MapPath("~/App_Data/RecordSchema.xsd");
-                if (!ValidateXmlAgainstSchema(xmlData, xsdPath))
-                {
+                // Determine the appropriate schema and model based on the XML content
+                string notificationXsdPath = HttpContext.Current.Server.MapPath("~/App_Data/NotificationSchema.xsd");
+                string recordXsdPath = HttpContext.Current.Server.MapPath("~/App_Data/RecordSchema.xsd");
+
+                if (ValidateXmlAgainstSchema(xmlData, notificationXsdPath)) {
+                    return HandleNotification(applicationName, containerName, xmlData);
+                }
+                else if (ValidateXmlAgainstSchema(xmlData, recordXsdPath)) {
+                    return HandleRecord(applicationName, containerName, xmlData);
+                }
+                else {
                     return BadRequest("Invalid XML data format.");
                 }
+            }
+            catch (Exception) {
+                return InternalServerError();
+            }
+        }
 
-                // passas o XML para o modelo Record
+        private IHttpActionResult HandleNotification(string applicationName, string containerName, XmlDocument xmlData) {
+            try {
+                Models.Notification newNotification;
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(Models.Notification));
+                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement)) {
+                    newNotification = (Models.Notification)xmlSerializer.Deserialize(xmlNodeReader);
+                }
+
+                newNotification.creation_datetime = DateTime.Now;
+
+                using (var connection = new SqlConnection(connectionString)) {
+                    connection.Open();
+                    try {
+                        return CreateNotification(applicationName, containerName, newNotification, connection);
+                    }
+                    catch (SqlException e) when (e.Number == 2627) {
+                        newNotification.name = GenerateTimestampName(newNotification.name);
+                        return CreateNotification(applicationName, containerName, newNotification, connection);
+                    }
+                }
+            }
+            catch (Exception) {
+                return InternalServerError();
+            }
+        }
+
+        private IHttpActionResult HandleRecord(string applicationName, string containerName, XmlDocument xmlData) {
+            try {
                 Models.Record newRecord;
                 XmlSerializer xmlSerializer = new XmlSerializer(typeof(Models.Record));
-                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement))
-                {
+                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement)) {
                     newRecord = (Models.Record)xmlSerializer.Deserialize(xmlNodeReader);
                 }
 
-                // Acrecentas os valores que o sistema coloca
                 newRecord.creation_datetime = DateTime.Now;
 
-                using (var connection = new SqlConnection(connectionString))
-                {
+                using (var connection = new SqlConnection(connectionString)) {
                     connection.Open();
-                    // tenta inserir na BD uma nova aplicação
-                    try
-                    {
+                    try {
                         return CreateRecord(applicationName, containerName, newRecord, connection);
                     }
-
-                    catch (SqlException e) when (e.Number == 2627)
-                    {
-                        // Add timestamp in model name 
+                    catch (SqlException e) when (e.Number == 2627) {
                         newRecord.name = GenerateTimestampName(newRecord.name);
                         return CreateRecord(applicationName, containerName, newRecord, connection);
                     }
                 }
             }
-            catch (Exception)
-            {
+            catch (Exception) {
                 return InternalServerError();
             }
         }
 
-        private IHttpActionResult CreateRecord(string applicationName, string containerName, Models.Record newRecord, SqlConnection conn)
-        {
-            string sqlQuery = @"INSERT INTO records (name, content, creation_datetime, parent) OUTPUT INSERTED.id 
-                                VALUES (@name, @content, @creation_datetime, @parent)";
 
-            using (var command = new SqlCommand(sqlQuery, conn))
-            {
+        private IHttpActionResult CreateRecord(string applicationName, string containerName, Models.Record newRecord, SqlConnection conn) {
+            // Query to get the application ID based on applicationName
+            string getApplicationIdQuery = "SELECT id FROM applications WHERE name = @applicationName";
+            int applicationId;
+
+            using (var getCommand = new SqlCommand(getApplicationIdQuery, conn)) {
+                getCommand.Parameters.AddWithValue("@applicationName", applicationName);
+                object result = getCommand.ExecuteScalar();
+                if (result == null) {
+                    return NotFound(); // Return 404 if the application name is not found
+                }
+                applicationId = (int)result;
+            }
+
+            // Query to get the container ID based on containerName and application ID
+            string getContainerIdQuery = "SELECT id FROM containers WHERE name = @containerName AND parent = @applicationId";
+            int containerId;
+
+            using (var getCommand = new SqlCommand(getContainerIdQuery, conn)) {
+                getCommand.Parameters.AddWithValue("@containerName", containerName);
+                getCommand.Parameters.AddWithValue("@applicationId", applicationId);
+                object result = getCommand.ExecuteScalar();
+                if (result == null) {
+                    return NotFound(); // Return 404 if the container name is not found
+                }
+                containerId = (int)result;
+            }
+
+            // Set the container ID as the parent for the new record
+            newRecord.parent = containerId;
+
+            // Query to insert the new record
+            string sqlQuery = @"INSERT INTO records (name, content, creation_datetime, parent) OUTPUT INSERTED.id 
+                        VALUES (@name, @content, @creation_datetime, @parent)";
+
+            using (var command = new SqlCommand(sqlQuery, conn)) {
                 command.Parameters.AddWithValue("@name", newRecord.name);
                 command.Parameters.AddWithValue("@content", newRecord.content);
                 command.Parameters.AddWithValue("@creation_datetime", newRecord.creation_datetime);
@@ -690,37 +705,47 @@ namespace WebApplication1.Controllers {
                 newRecord.id = (int)command.ExecuteScalar();
             }
 
-            Record newRecordInserted = null;    // Preciso desta variável aqui para a notificação, que é basicamente o "newRecord" mas com as alterações que a BD fez
-                                                // Possivelmente algo parecido com o que foi feito no DeleteRecord (mas com lógica diferente, porque é um POST em vez de DELETE)
+            // Fetch the newly inserted record
+            Record newRecordInserted = null; // This will hold the record details including database alterations
+            string selectQuery = "SELECT * FROM records WHERE id = @id";
+
+            using (var command = new SqlCommand(selectQuery, conn)) {
+                command.Parameters.AddWithValue("@id", newRecord.id);
+                using (var reader = command.ExecuteReader()) {
+                    if (reader.Read()) {
+                        newRecordInserted = new Record {
+                            id = (int)reader["id"],
+                            name = (string)reader["name"],
+                            content = (string)reader["content"],
+                            creation_datetime = (DateTime)reader["creation_datetime"],
+                            parent = (int)reader["parent"]
+                        };
+                    }
+                }
+            }
 
             // Notifications
             using (var command = new SqlCommand(
-                "SELECT * from notifications n " +
+                "SELECT * FROM notifications n " +
                 "JOIN containers c on n.parent = c.id " +
                 "WHERE c.name = @containerName " +
                 "AND n.event = 1 " +
-                "AND n.enabled = 1", conn))
-            {
+                "AND n.enabled = 1", conn)) {
                 command.Parameters.AddWithValue("@containerName", containerName);
 
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
+                using (var reader = command.ExecuteReader()) {
+                    while (reader.Read()) {
                         Console.WriteLine("Notification: " + reader["name"]);
-                        EventNotification eventNotification = new EventNotification
-                        {
+                        EventNotification eventNotification = new EventNotification {
                             record = newRecordInserted,
                             @event = "creation"
                         };
                         // HTTP
-                        if (((string)reader["endpoint"]).StartsWith("http://"))
-                        {
+                        if (((string)reader["endpoint"]).StartsWith("http://")) {
                             SendHTTPNotification((string)reader["endpoint"], eventNotification);
                         }
                         // MQTT
-                        else
-                        {
+                        else {
                             string channelName = "api/somiod/" + applicationName + "/" + containerName;
                             SendMQTTNotification(channelName, (string)reader["endpoint"], eventNotification);
                         }
@@ -729,6 +754,7 @@ namespace WebApplication1.Controllers {
             }
             return Created("", newRecord);
         }
+
 
 
         [HttpDelete]
@@ -865,66 +891,43 @@ namespace WebApplication1.Controllers {
             }
         }
 
-        [HttpPost]
-        [Route()]
-        public IHttpActionResult PostNotification([FromBody] XmlDocument xmlData)
-        {
-            try
-            {
-                // notificationName com o paramentro do url e o xmlData com o body que esta a ser enviado(onde mandamos o novo modelo)
-                if (xmlData == null)
-                {
-                    return BadRequest("Invalid application data.");
+
+        private IHttpActionResult CreateNotification(String applicationName, String containerName, Models.Notification newNotification, SqlConnection conn) {
+            // Query to get the application ID based on applicationName
+            string getApplicationIdQuery = "SELECT id FROM applications WHERE name = @applicationName";
+            int applicationId;
+
+            using (var getCommand = new SqlCommand(getApplicationIdQuery, conn)) {
+                getCommand.Parameters.AddWithValue("@applicationName", applicationName);
+                object result = getCommand.ExecuteScalar();
+                if (result == null) {
+                    return NotFound(); // Return 404 if the application name is not found
                 }
-
-                // Validas o XML enviado no body com o XSD
-                string xsdPath = HttpContext.Current.Server.MapPath("~/App_Data/NotificationSchema.xsd");
-                if (!ValidateXmlAgainstSchema(xmlData, xsdPath))
-                {
-                    return BadRequest("Invalid XML data format.");
-                }
-
-                // passas o XML para o modelo Notification
-                Models.Notification newNotification;
-                XmlSerializer xmlSerializer = new XmlSerializer(typeof(Models.Notification));
-                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement))
-                {
-                    newNotification = (Models.Notification)xmlSerializer.Deserialize(xmlNodeReader);
-                }
-
-                // Acrecentas os valores que o sistema coloca
-                newNotification.creation_datetime = DateTime.Now;
-
-                using (var connection = new SqlConnection(connectionString))
-                {
-                    connection.Open();
-                    // tenta inserir na BD uma nova aplicação
-                    try
-                    {
-                        return CreateNotification(newNotification, connection);
-                    }
-
-                    catch (SqlException e) when (e.Number == 2627)
-                    {
-                        // Add timestamp in model name 
-                        newNotification.name = GenerateTimestampName(newNotification.name);
-                        return CreateNotification(newNotification, connection);
-                    }
-                }
+                applicationId = (int)result;
             }
-            catch (Exception)
-            {
-                return InternalServerError();
-            }
-        }
 
-        private IHttpActionResult CreateNotification(Models.Notification newNotification, SqlConnection conn)
-        {
+            // Query to get the container ID based on containerName and application ID
+            string getContainerIdQuery = "SELECT id FROM containers WHERE name = @containerName AND parent = @applicationId";
+            int containerId;
+
+            using (var getCommand = new SqlCommand(getContainerIdQuery, conn)) {
+                getCommand.Parameters.AddWithValue("@containerName", containerName);
+                getCommand.Parameters.AddWithValue("@applicationId", applicationId);
+                object result = getCommand.ExecuteScalar();
+                if (result == null) {
+                    return NotFound(); // Return 404 if the container name is not found
+                }
+                containerId = (int)result;
+            }
+
+            // Set the container ID as the parent for the new notification
+            newNotification.parent = containerId;
+
+
             string sqlQuery = @"INSERT INTO notifications (name, creation_datetime, parent, event, endpoint, enabled) OUTPUT INSERTED.id 
                                 VALUES (@name, @creation_datetime, @parent, @event, @endpoint, @enabled)";
 
-            using (var command = new SqlCommand(sqlQuery, conn))
-            {
+            using (var command = new SqlCommand(sqlQuery, conn)) {
                 command.Parameters.AddWithValue("@name", newNotification.name);
                 command.Parameters.AddWithValue("@creation_datetime", newNotification.creation_datetime);
                 command.Parameters.AddWithValue("@parent", newNotification.parent);
@@ -1287,7 +1290,7 @@ namespace WebApplication1.Controllers {
                 }
             }
             catch (Exception ex) {
-                throw new Exception("Error sending HTTP notification", ex);
+                return;
             }
         }
 
@@ -1342,14 +1345,11 @@ namespace WebApplication1.Controllers {
                 mClient.Publish(channelName, Encoding.UTF8.GetBytes(payload));
             }
             catch (Exception ex) {
-                // TODO isto provavelmente não é suposto mandar exceção
-                throw new Exception("Error sending MQTT notification", ex);
+                return;
             }
         }
 
         #endregion
-
-
 
     }
 }
