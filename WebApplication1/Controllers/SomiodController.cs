@@ -432,10 +432,6 @@ namespace WebApplication1.Controllers {
         }
 
 
-
-
-
-
         [HttpPut]
         [Route("{applicationName}/{containerName}")]
         public IHttpActionResult PutContainer(string applicationName, string containerName, [FromBody] XmlDocument xmlData) {
@@ -608,33 +604,6 @@ namespace WebApplication1.Controllers {
                 return InternalServerError();
             }
         }
-
-        // Method preview - It's available on the Notifications region
-        //private IHttpActionResult HandleNotification(string applicationName, string containerName, XmlDocument xmlData) {
-        //    try {
-        //        Models.Notification newNotification;
-        //        XmlSerializer xmlSerializer = new XmlSerializer(typeof(Models.Notification));
-        //        using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement)) {
-        //            newNotification = (Models.Notification)xmlSerializer.Deserialize(xmlNodeReader);
-        //        }
-
-        //        newNotification.creation_datetime = DateTime.Now;
-
-        //        using (var connection = new SqlConnection(connectionString)) {
-        //            connection.Open();
-        //            try {
-        //                return CreateNotification(applicationName, containerName, newNotification, connection);
-        //            }
-        //            catch (SqlException e) when (e.Number == 2627) {
-        //                newNotification.name = GenerateTimestampName(newNotification.name);
-        //                return CreateNotification(applicationName, containerName, newNotification, connection);
-        //            }
-        //        }
-        //    }
-        //    catch (Exception) {
-        //        return InternalServerError();
-        //    }
-        //}
 
         private IHttpActionResult HandleRecord(string applicationName, string containerName, XmlDocument xmlData) {
             try {
