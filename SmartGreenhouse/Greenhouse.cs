@@ -57,13 +57,13 @@ namespace SmartGreenhouse {
                 applicationName = MountApplication();
                 labelApplicationName.Text = applicationName;
 
-                //humidityContainerName = MountContainer(applicationName, "Humidity");
-                //temperatureContainerName = MountContainer(applicationName, "Temperature");
-                //lightContainerName = MountContainer(applicationName, "Light");
-                // TODO: messagging logic
-                //MountNotification(applicationName, humidityContainerName, "HumidityNotif", 1, 127.0.0.1);
-                //MountNotification(applicationName, temperatureContainerName, "TemperatureNotif", 1, 127.0.0.1);
-                //MountNotification(applicationName, lightContainerName, "TemperatureNotif", 1, 127.0.0.1);
+                humidityContainerName = MountContainer(applicationName, "Humidity");
+                temperatureContainerName = MountContainer(applicationName, "Temperature");
+                lightContainerName = MountContainer(applicationName, "Light");
+
+                MountNotification(applicationName, humidityContainerName, "HumidityNotif", 1, "127.0.0.1");
+                MountNotification(applicationName, temperatureContainerName, "TemperatureNotif", 1, "127.0.0.1");
+                MountNotification(applicationName, lightContainerName, "TemperatureNotif", 1, "127.0.0.1");
 
                 mqttListener = new MqttListener(this, "testeHumidade", "testeTemperatura", "testeLuz");
                 mqttListener.Start();
@@ -75,8 +75,7 @@ namespace SmartGreenhouse {
             }
             catch (Exception ex) {
                 btnMountApplication.Enabled = true;
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                //MessageBox.Show("An error occurred while mounting the application. Please try again later.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);              
             }
 
         }
@@ -289,7 +288,7 @@ namespace SmartGreenhouse {
         }
 
         private void MountNotification(string applicationName, string containerName, string notificationName, int @event, string messageEndpoint) {
-            string endpoint = url + applicationName;
+            string endpoint = url + applicationName + "/" + containerName;
             var client = new RestClient(endpoint);
             var request = new RestRequest();
             request.Method = Method.Post;
@@ -304,13 +303,17 @@ namespace SmartGreenhouse {
             nameElement.InnerText = notificationName;
             notificationElement.AppendChild(nameElement);
 
-            XmlElement eventElement = xmlDoc.CreateElement("event");
-            eventElement.InnerText = @event.ToString();
-            notificationElement.AppendChild(eventElement);
-
             XmlElement endpointElement = xmlDoc.CreateElement("endpoint");
             endpointElement.InnerText = messageEndpoint;
             notificationElement.AppendChild(endpointElement);
+
+            XmlElement enabledElement = xmlDoc.CreateElement("enabled");
+            enabledElement.InnerText = "true";
+            notificationElement.AppendChild(enabledElement);
+
+            XmlElement eventElement = xmlDoc.CreateElement("event");
+            eventElement.InnerText = @event.ToString();
+            notificationElement.AppendChild(eventElement);
 
             xmlDoc.AppendChild(notificationElement);
             string xmlContent = xmlDoc.OuterXml;
