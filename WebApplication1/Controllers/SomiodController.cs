@@ -172,7 +172,7 @@ namespace WebApplication1.Controllers {
 
         [HttpPost]
         [Route()]
-        public IHttpActionResult PostApplication(string applicationName, [FromBody] XmlDocument xmlData)
+        public IHttpActionResult PostApplication([FromBody] XmlDocument xmlData)
         {
             try
             {
@@ -206,40 +206,37 @@ namespace WebApplication1.Controllers {
                     // tenta inserir na BD uma nova aplicação
                     try
                     {
-                        using (var command = new SqlCommand("INSERT INTO applications (name, creation_datetime) OUTPUT INSERTED.id VALUES (@name, @creation_datetime)", connection))
-                        {
-                            command.Parameters.AddWithValue("@name", newApplication.name);
-                            command.Parameters.AddWithValue("@creation_datetime", newApplication.creation_datetime);
-                            newApplication.id = (int)command.ExecuteScalar();
-                        }
+                        return CreateApplication(newApplication, connection);
                     }
 
-                    // caso apanhe a exceção 2627 (violar unique constraint), adiciona um identificador único (neste caso, _X) com base no número de aplicações com o nome semelhante (select count(*))
-                    // pode haver uma maneira mais "limpa" de fazer isto, mas o professor da Isa disse que bastava
-                    catch (SqlException e)
+                    catch(SqlException e) when(e.Number == 2627)
                     {
-                        if (e.Number == 2627)
-                        {
-                            using (var countCommand = new SqlCommand("SELECT COUNT(*) FROM applications WHERE name LIKE @name", connection))
-                            {
-                                countCommand.Parameters.AddWithValue("@name", newApplication.name + "%");
-                                int count = (int)countCommand.ExecuteScalar();
-                                newApplication.name = $"{newApplication.name}_{count + 1}";
-                            }
-                        }
-                        else
-                        {
-                            throw; // para outros erros de sql, manda uma exception normal que depois é apanhada algumas linhas abaixo e é enviado um InternalServerError
-                        }
+                        // Add timestamp in model name 
+                        newApplication.name = GenerateTimestampName(newApplication.name);
+                        return CreateApplication(newApplication, connection);
                     }
                 }
-
-                return Ok(newApplication); // aqui apesar de ser um POST, acho que faz sentido devolver a resource criada ao utilizador porque pode acabar por ter um nome diferente do que ele escolheu
             }
             catch (Exception)
             {
                 return InternalServerError();
             }
+        }
+
+        private IHttpActionResult CreateApplication(Models.Application newApplication, SqlConnection conn)
+        {
+            string sqlQuery = @"
+                INSERT INTO applications (name, creation_datetime) OUTPUT INSERTED.id 
+                VALUES (@name, @creation_datetime)";
+
+            using (var command = new SqlCommand(sqlQuery, conn))
+            {
+                command.Parameters.AddWithValue("@name", newApplication.name);
+                command.Parameters.AddWithValue("@creation_datetime", newApplication.creation_datetime);
+                newApplication.id = (int)command.ExecuteScalar();
+
+            }
+            return Created("", newApplication);
         }
 
         [HttpPut]
@@ -399,7 +396,7 @@ namespace WebApplication1.Controllers {
 
         [HttpPost]
         [Route()]
-        public IHttpActionResult PostContainer(string containerName, [FromBody] XmlDocument xmlData)
+        public IHttpActionResult PostContainer([FromBody] XmlDocument xmlData)
         {
             try
             {
@@ -433,38 +430,37 @@ namespace WebApplication1.Controllers {
                     // tenta inserir na BD uma nova aplicação
                     try
                     {
-                        using (var command = new SqlCommand("INSERT INTO containers (name, creation_datetime, parent) OUTPUT INSERTED.id VALUES (@name, @creation_datetime, @parent)", connection))
-                        {
-                            command.Parameters.AddWithValue("@name", newContainer.name);
-                            command.Parameters.AddWithValue("@creation_datetime", newContainer.creation_datetime);
-                            command.Parameters.AddWithValue("@parent", newContainer.parent);
-                            newContainer.id = (int)command.ExecuteScalar();
-                        }
+                        return CreateContainer(newContainer, connection);
                     }
-                    catch (SqlException e)
+
+                    catch (SqlException e) when (e.Number == 2627)
                     {
-                        if (e.Number == 2627)
-                        {
-                            using (var countCommand = new SqlCommand("SELECT COUNT(*) FROM containers WHERE name LIKE @name", connection))
-                            {
-                                countCommand.Parameters.AddWithValue("@name", newContainer.name + "%");
-                                int count = (int)countCommand.ExecuteScalar();
-                                newContainer.name = $"{newContainer.name}_{count + 1}";
-                            }
-                        }
-                        else
-                        {
-                            throw;
-                        }
+                        // Add timestamp in model name 
+                        newContainer.name = GenerateTimestampName(newContainer.name);
+                        return CreateContainer(newContainer, connection);
                     }
                 }
-
-                return Ok(newContainer); // aqui apesar de ser um POST, acho que faz sentido devolver a resource criada ao utilizador porque pode acabar por ter um nome diferente do que ele escolheu
             }
             catch (Exception)
             {
                 return InternalServerError();
             }
+        }
+
+        private IHttpActionResult CreateContainer(Models.Container newContainer, SqlConnection conn)
+        {
+            string sqlQuery = @"INSERT INTO containers (name, creation_datetime, parent) OUTPUT INSERTED.id 
+                                VALUES (@name, @creation_datetime, @parent)";
+
+            using (var command = new SqlCommand(sqlQuery, conn))
+            {
+                command.Parameters.AddWithValue("@name", newContainer.name);
+                command.Parameters.AddWithValue("@creation_datetime", newContainer.creation_datetime);
+                command.Parameters.AddWithValue("@parent", newContainer.parent);
+                newContainer.id = (int)command.ExecuteScalar();
+
+            }
+            return Created("", newContainer);
         }
 
 
@@ -663,77 +659,75 @@ namespace WebApplication1.Controllers {
                     // tenta inserir na BD uma nova aplicação
                     try
                     {
-                        using (var command = new SqlCommand("INSERT INTO records (name, content, creation_datetime, parent) OUTPUT INSERTED.id VALUES (@name, @content, @creation_datetime, @parent)", connection))
-                        {
-                            command.Parameters.AddWithValue("@name", newRecord.name);
-                            command.Parameters.AddWithValue("@content", newRecord.content);
-                            command.Parameters.AddWithValue("@creation_datetime", newRecord.creation_datetime);
-                            command.Parameters.AddWithValue("@parent", newRecord.parent);
-                            newRecord.id = (int)command.ExecuteScalar();
-                        }
-                    }
-                    catch (SqlException e)
-                    {
-                        if (e.Number == 2627)
-                        {
-                            using (var countCommand = new SqlCommand("SELECT COUNT(*) FROM containers WHERE name LIKE @name", connection))
-                            {
-                                countCommand.Parameters.AddWithValue("@name", newRecord.name + "%");
-                                int count = (int)countCommand.ExecuteScalar();
-                                newRecord.name = $"{newRecord.name}_{count + 1}";
-                            }
-                        }
-                        else
-                        {
-                            throw;
-                        }
+                        return CreateRecord(applicationName, containerName, newRecord, connection);
                     }
 
-                    Record newRecordInserted = null;    // Preciso desta variável aqui para a notificação, que é basicamente o "newRecord" mas com as alterações que a BD fez
-                                                        // Possivelmente algo parecido com o que foi feito no DeleteRecord (mas com lógica diferente, porque é um POST em vez de DELETE)
-
-                    // Notifications
-                    using (var command = new SqlCommand(
-                        "SELECT * from notifications n " +
-                        "JOIN containers c on n.parent = c.id " +
-                        "WHERE c.name = @containerName " +
-                        "AND n.event = 1 " +
-                        "AND n.enabled = 1", conn))
+                    catch (SqlException e) when (e.Number == 2627)
                     {
-                        command.Parameters.AddWithValue("@containerName", containerName);
-
-                        using (var reader = command.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                Console.WriteLine("Notification: " + reader["name"]);
-                                EventNotification eventNotification = new EventNotification
-                                {
-                                    record = newRecordInserted,
-                                    @event = "creation"
-                                };
-                                // HTTP
-                                if (((string)reader["endpoint"]).StartsWith("http://"))
-                                {
-                                    SendHTTPNotification((string)reader["endpoint"], eventNotification);
-                                }
-                                // MQTT
-                                else
-                                {
-                                    string channelName = "api/somiod/" + applicationName + "/" + containerName;
-                                    SendMQTTNotification(channelName, (string)reader["endpoint"], eventNotification);
-                                }
-                            }
-                        }
+                        // Add timestamp in model name 
+                        newRecord.name = GenerateTimestampName(newRecord.name);
+                        return CreateRecord(applicationName, containerName, newRecord, connection);
                     }
                 }
-
-                return Created("", newRecord);
             }
             catch (Exception)
             {
                 return InternalServerError();
             }
+        }
+
+        private IHttpActionResult CreateRecord(string applicationName, string containerName, Models.Record newRecord, SqlConnection conn)
+        {
+            string sqlQuery = @"INSERT INTO records (name, content, creation_datetime, parent) OUTPUT INSERTED.id 
+                                VALUES (@name, @content, @creation_datetime, @parent)";
+
+            using (var command = new SqlCommand(sqlQuery, conn))
+            {
+                command.Parameters.AddWithValue("@name", newRecord.name);
+                command.Parameters.AddWithValue("@content", newRecord.content);
+                command.Parameters.AddWithValue("@creation_datetime", newRecord.creation_datetime);
+                command.Parameters.AddWithValue("@parent", newRecord.parent);
+                newRecord.id = (int)command.ExecuteScalar();
+            }
+
+            Record newRecordInserted = null;    // Preciso desta variável aqui para a notificação, que é basicamente o "newRecord" mas com as alterações que a BD fez
+                                                // Possivelmente algo parecido com o que foi feito no DeleteRecord (mas com lógica diferente, porque é um POST em vez de DELETE)
+
+            // Notifications
+            using (var command = new SqlCommand(
+                "SELECT * from notifications n " +
+                "JOIN containers c on n.parent = c.id " +
+                "WHERE c.name = @containerName " +
+                "AND n.event = 1 " +
+                "AND n.enabled = 1", conn))
+            {
+                command.Parameters.AddWithValue("@containerName", containerName);
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Console.WriteLine("Notification: " + reader["name"]);
+                        EventNotification eventNotification = new EventNotification
+                        {
+                            record = newRecordInserted,
+                            @event = "creation"
+                        };
+                        // HTTP
+                        if (((string)reader["endpoint"]).StartsWith("http://"))
+                        {
+                            SendHTTPNotification((string)reader["endpoint"], eventNotification);
+                        }
+                        // MQTT
+                        else
+                        {
+                            string channelName = "api/somiod/" + applicationName + "/" + containerName;
+                            SendMQTTNotification(channelName, (string)reader["endpoint"], eventNotification);
+                        }
+                    }
+                }
+            }
+            return Created("", newRecord);
         }
 
 
@@ -907,36 +901,16 @@ namespace WebApplication1.Controllers {
                     // tenta inserir na BD uma nova aplicação
                     try
                     {
-                        using (var command = new SqlCommand("INSERT INTO notifications (name, creation_datetime, parent, event, endpoint, enabled) OUTPUT INSERTED.id VALUES (@name, @creation_datetime, @parent, @event, @endpoint, @enabled)", connection))
-                        {
-                            command.Parameters.AddWithValue("@name", newNotification.name);
-                            command.Parameters.AddWithValue("@creation_datetime", newNotification.creation_datetime);
-                            command.Parameters.AddWithValue("@parent", newNotification.parent);
-                            command.Parameters.AddWithValue("@event", newNotification.@event);
-                            command.Parameters.AddWithValue("@endpoint", newNotification.endpoint);
-                            command.Parameters.AddWithValue("@enabled", newNotification.enabled);
-                            newNotification.id = (int)command.ExecuteScalar();
-                        }
+                        return CreateNotification(newNotification, connection);
                     }
-                    catch (SqlException e)
+
+                    catch (SqlException e) when (e.Number == 2627)
                     {
-                        if (e.Number == 2627)
-                        {
-                            using (var countCommand = new SqlCommand("SELECT COUNT(*) FROM containers WHERE name LIKE @name", connection))
-                            {
-                                countCommand.Parameters.AddWithValue("@name", newNotification.name + "%");
-                                int count = (int)countCommand.ExecuteScalar();
-                                newNotification.name = $"{newNotification.name}_{count + 1}";
-                            }
-                        }
-                        else
-                        {
-                            throw;
-                        }
+                        // Add timestamp in model name 
+                        newNotification.name = GenerateTimestampName(newNotification.name);
+                        return CreateNotification(newNotification, connection);
                     }
                 }
-
-                return Ok(newNotification); // aqui apesar de ser um POST, acho que faz sentido devolver a resource criada ao utilizador porque pode acabar por ter um nome diferente do que ele escolheu
             }
             catch (Exception)
             {
@@ -944,7 +918,24 @@ namespace WebApplication1.Controllers {
             }
         }
 
+        private IHttpActionResult CreateNotification(Models.Notification newNotification, SqlConnection conn)
+        {
+            string sqlQuery = @"INSERT INTO notifications (name, creation_datetime, parent, event, endpoint, enabled) OUTPUT INSERTED.id 
+                                VALUES (@name, @creation_datetime, @parent, @event, @endpoint, @enabled)";
 
+            using (var command = new SqlCommand(sqlQuery, conn))
+            {
+                command.Parameters.AddWithValue("@name", newNotification.name);
+                command.Parameters.AddWithValue("@creation_datetime", newNotification.creation_datetime);
+                command.Parameters.AddWithValue("@parent", newNotification.parent);
+                command.Parameters.AddWithValue("@event", newNotification.@event);
+                command.Parameters.AddWithValue("@endpoint", newNotification.endpoint);
+                command.Parameters.AddWithValue("@enabled", newNotification.enabled);
+                newNotification.id = (int)command.ExecuteScalar();
+
+            }
+            return Created("", newNotification);
+        }
 
         // DELETE
 
