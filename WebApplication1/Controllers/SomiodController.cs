@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Xml;
+using System.Xml.Linq;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
 using WebApplication1.Models;
@@ -146,7 +147,7 @@ namespace WebApplication1.Controllers {
                         }
                     }
                 } while (true);
-                return Ok(newApplication); // aqui apesar de ser um POST, acho que faz sentido devolver a resource criada ao utilizador porque pode acabar por ter um nome diferente do que ele escolheu
+                return Created("", newApplication); // aqui apesar de ser um POST, acho que faz sentido devolver a resource criada ao utilizador porque pode acabar por ter um nome diferente do que ele escolheu
             }
             catch (Exception) {
                 return InternalServerError();
@@ -175,8 +176,7 @@ namespace WebApplication1.Controllers {
                         }
                     }
                 }
-
-                return Ok();
+                return StatusCode(HttpStatusCode.NoContent);
             }
             catch (Exception) {
                 return InternalServerError();
@@ -303,8 +303,7 @@ namespace WebApplication1.Controllers {
                         }
                     }
                 }
-
-                return Ok();
+               return StatusCode(HttpStatusCode.NoContent);
             }
             catch (Exception) {
                 return InternalServerError();
@@ -361,7 +360,7 @@ namespace WebApplication1.Controllers {
 
         [HttpPost]
         [Route("{applicationName}/{containerName}")]
-        public IHttpActionResult PostRecordAsync(string applicationName, string containerName, Record newRecord) {
+        public IHttpActionResult PostRecord(string applicationName, string containerName, Record newRecord) {
             try {
                 using (var conn = new SqlConnection(connectionString)) {
                     conn.Open();
@@ -402,7 +401,7 @@ namespace WebApplication1.Controllers {
                     }
                 }
 
-                return Ok();
+                return Created("", newRecord);
             }
             catch (Exception) {
                 return InternalServerError();
@@ -484,7 +483,7 @@ namespace WebApplication1.Controllers {
                     }
                 }
 
-                return Ok();
+                return StatusCode(HttpStatusCode.NoContent);
             }
             catch (Exception) {
                 return InternalServerError();
@@ -572,7 +571,7 @@ namespace WebApplication1.Controllers {
                     }
                 }
 
-                return Ok();
+                return StatusCode(HttpStatusCode.NoContent);
             }
             catch (Exception) {
                 return InternalServerError();
@@ -628,8 +627,8 @@ namespace WebApplication1.Controllers {
             catch (Exception) {
                 throw new HttpResponseException(System.Net.HttpStatusCode.InternalServerError);
             }
-
-            return Ok(applicationsNames);
+            var xmlResponse = new XElement("applications", applicationsNames.Select(name => new XElement("name", name)));
+            return Ok(xmlResponse);
         }
 
         public IHttpActionResult GetAllContainersNames() {
@@ -648,8 +647,8 @@ namespace WebApplication1.Controllers {
             catch (Exception) {
                 return InternalServerError();
             }
-
-            return Ok(containersNames);
+            var xmlResponse = new XElement("containers", containersNames.Select(name => new XElement("name", name)));
+            return Ok(xmlResponse);
         }
 
         public IHttpActionResult GetAllNotificationsNames() {
@@ -668,8 +667,8 @@ namespace WebApplication1.Controllers {
             catch (Exception) {
                 return InternalServerError();
             }
-
-            return Ok(notificationsNames);
+            var xmlResponse = new XElement("notifications", notificationsNames.Select(name => new XElement("name", name)));
+            return Ok(xmlResponse);
         }
 
         public IHttpActionResult GetAllRecordsNames() {
@@ -688,8 +687,8 @@ namespace WebApplication1.Controllers {
             catch (Exception) {
                 return InternalServerError();
             }
-
-            return Ok(recordsNames);
+            var xmlResponse = new XElement("records", recordsNames.Select(name => new XElement("name", name)));
+            return Ok(xmlResponse);
         }
 
         #endregion
@@ -735,8 +734,8 @@ namespace WebApplication1.Controllers {
             catch (Exception) {
                 return InternalServerError();
             }
-
-            return Ok(containersNames);
+            var xmlResponse = new XElement("containers", containersNames.Select(name => new XElement("name", name)));
+            return Ok(xmlResponse);
         }
 
         public IHttpActionResult GetAllNotificationsNames(string applicationName) {
@@ -764,8 +763,8 @@ namespace WebApplication1.Controllers {
             catch (Exception) {
                 return InternalServerError();
             }
-
-            return Ok(notificationsNames);
+            var xmlResponse = new XElement("notifications", notificationsNames.Select(name => new XElement("name", name)));
+            return Ok(xmlResponse);
         }
 
         public IHttpActionResult GetAllRecordsNames(string applicationName) {
@@ -793,8 +792,8 @@ namespace WebApplication1.Controllers {
             catch (Exception) {
                 return InternalServerError();
             }
-
-            return Ok(recordsNames);
+            var xmlResponse = new XElement("records", recordsNames.Select(name => new XElement("name", name)));
+            return Ok(xmlResponse);
         }
 
         #endregion
@@ -840,8 +839,8 @@ namespace WebApplication1.Controllers {
             catch (Exception) {
                 return InternalServerError();
             }
-
-            return Ok(notificationsNames);
+            var xmlResponse = new XElement("notifications", notificationsNames.Select(name => new XElement("name", name)));
+            return Ok(xmlResponse);
         }
 
         public IHttpActionResult GetAllRecordsNames(string applicationName, string containerName) {
@@ -871,8 +870,8 @@ namespace WebApplication1.Controllers {
             catch (Exception) {
                 return InternalServerError();
             }
-
-            return Ok(recordsNames);
+            var xmlResponse = new XElement("records", recordsNames.Select(name => new XElement("name", name)));
+            return Ok(xmlResponse);
         }
 
         #endregion

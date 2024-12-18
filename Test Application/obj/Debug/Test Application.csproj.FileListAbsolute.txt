@@ -2,9 +2,9 @@ C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\bin\Debug\Test Applicatio
 C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\bin\Debug\Test Application.exe
 C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\bin\Debug\Test Application.pdb
 C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\obj\Debug\Test Application.csproj.AssemblyReference.cache
-C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\obj\Debug\Test_Application.Form1.resources
 C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\obj\Debug\Test_Application.Properties.Resources.resources
 C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\obj\Debug\Test Application.csproj.GenerateResource.cache
 C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\obj\Debug\Test Application.csproj.CoreCompileInputs.cache
 C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\obj\Debug\Test Application.exe
 C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\obj\Debug\Test Application.pdb
+C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\obj\Debug\Test_Application.TestForm.resources
