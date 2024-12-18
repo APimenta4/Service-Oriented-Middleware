@@ -172,49 +172,75 @@ namespace WebApplication1.Controllers {
 
         [HttpPost]
         [Route()]
-        public IHttpActionResult PostApplication(Models.Application newApplication) {
-            if (newApplication == null || string.IsNullOrEmpty(newApplication.name)) {
-                return BadRequest();
-            }
+        public IHttpActionResult PostApplication(string applicationName, [FromBody] XmlDocument xmlData)
+        {
+            try
+            {
+                // applicationName com o paramentro do url e o xmlData com o body que esta a ser enviado(onde mandamos o novo modelo)
+                if (xmlData == null)
+                {
+                    return BadRequest("Invalid application data.");
+                }
 
-            newApplication.creation_datetime = DateTime.Now;
+                // Validas o XML enviado no body com o XSD
+                string xsdPath = HttpContext.Current.Server.MapPath("~/App_Data/ApplicationSchema.xsd");
+                if (!ValidateXmlAgainstSchema(xmlData, xsdPath))
+                {
+                    return BadRequest("Invalid XML data format.");
+                }
 
-            try {
-                do {
-                    using (var connection = new SqlConnection(connectionString)) {
-                        connection.Open();
-                        // tenta inserir na BD uma nova aplicação
-                        try {
-                            using (var command = new SqlCommand("INSERT INTO applications (name, creation_datetime) OUTPUT INSERTED.id VALUES (@name, @creation_datetime)", connection)) {
-                                command.Parameters.AddWithValue("@name", newApplication.name);
-                                command.Parameters.AddWithValue("@creation_datetime", newApplication.creation_datetime);
-                                newApplication.id = (int)command.ExecuteScalar();
-                                break;
-                            }
-                        }
-                        // caso apanhe a exceção 2627 (violar unique constraint), adiciona um identificador único (neste caso, _X) com base no número de aplicações com o nome semelhante (select count(*))
-                        // pode haver uma maneira mais "limpa" de fazer isto, mas o professor da Isa disse que bastava
-                        catch (SqlException e) {
-                            if (e.Number == 2627) {
-                                using (var countCommand = new SqlCommand("SELECT COUNT(*) FROM applications WHERE name LIKE @name", connection)) {
-                                    countCommand.Parameters.AddWithValue("@name", newApplication.name + "%");
-                                    int count = (int)countCommand.ExecuteScalar();
-                                    newApplication.name = $"{newApplication.name}_{count + 1}";
-                                }
-                            }
-                            else {
-                                throw; // para outros erros de sql, manda uma exception normal que depois é apanhada algumas linhas abaixo e é enviado um InternalServerError
-                            }
+                // passas o XML para o modelo Application
+                Models.Application newApplication;
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(Models.Application));
+                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement))
+                {
+                    newApplication = (Models.Application)xmlSerializer.Deserialize(xmlNodeReader);
+                }
+
+                // Acrecentas os valores que o sistema coloca
+                newApplication.creation_datetime = DateTime.Now;
+
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    // tenta inserir na BD uma nova aplicação
+                    try
+                    {
+                        using (var command = new SqlCommand("INSERT INTO applications (name, creation_datetime) OUTPUT INSERTED.id VALUES (@name, @creation_datetime)", connection))
+                        {
+                            command.Parameters.AddWithValue("@name", newApplication.name);
+                            command.Parameters.AddWithValue("@creation_datetime", newApplication.creation_datetime);
+                            newApplication.id = (int)command.ExecuteScalar();
                         }
                     }
-                } while (true);
+
+                    // caso apanhe a exceção 2627 (violar unique constraint), adiciona um identificador único (neste caso, _X) com base no número de aplicações com o nome semelhante (select count(*))
+                    // pode haver uma maneira mais "limpa" de fazer isto, mas o professor da Isa disse que bastava
+                    catch (SqlException e)
+                    {
+                        if (e.Number == 2627)
+                        {
+                            using (var countCommand = new SqlCommand("SELECT COUNT(*) FROM applications WHERE name LIKE @name", connection))
+                            {
+                                countCommand.Parameters.AddWithValue("@name", newApplication.name + "%");
+                                int count = (int)countCommand.ExecuteScalar();
+                                newApplication.name = $"{newApplication.name}_{count + 1}";
+                            }
+                        }
+                        else
+                        {
+                            throw; // para outros erros de sql, manda uma exception normal que depois é apanhada algumas linhas abaixo e é enviado um InternalServerError
+                        }
+                    }
+                }
+
                 return Ok(newApplication); // aqui apesar de ser um POST, acho que faz sentido devolver a resource criada ao utilizador porque pode acabar por ter um nome diferente do que ele escolheu
             }
-            catch (Exception) {
+            catch (Exception)
+            {
                 return InternalServerError();
             }
         }
-
 
         [HttpPut]
         [Route("{applicationName}")]
@@ -372,53 +398,76 @@ namespace WebApplication1.Controllers {
         }
 
 
-        // POST
-        // TODO
-        // INCOMPLETO, COPIEI DO POSTAPPLICATION E COMECEI A MUDAR
-
-
         [HttpPost]
-        [Route("{applicationName}")]
-        public IHttpActionResult PostContainer(string applicationName, Container newContainer) {
-            if (newContainer == null || string.IsNullOrEmpty(newContainer.name) || newContainer.parent <= 0) {
-                return BadRequest();
-            }
-            newContainer.creation_datetime = DateTime.Now;
+        [Route()]
+        public IHttpActionResult PostContainer(string containerName, [FromBody] XmlDocument xmlData)
+        {
+            try
+            {
+                // containerName com o paramentro do url e o xmlData com o body que esta a ser enviado(onde mandamos o novo modelo)
+                if (xmlData == null)
+                {
+                    return BadRequest("Invalid application data.");
+                }
 
-            try {
-                do {
-                    using (var connection = new SqlConnection(connectionString)) {
-                        connection.Open();
-                        try {
-                            using (var command = new SqlCommand("INSERT INTO containers (name, creation_datetime, parent) OUTPUT INSERTED.id VALUES (@name, @creation_datetime, @parent)", connection)) {
-                                command.Parameters.AddWithValue("@name", newContainer.name);
-                                command.Parameters.AddWithValue("@creation_datetime", newContainer.creation_datetime);
-                                command.Parameters.AddWithValue("@parent", newContainer.parent);
-                                newContainer.id = (int)command.ExecuteScalar();
-                                break;
-                            }
-                        }
-                        catch (SqlException e) {
-                            if (e.Number == 2627) {
-                                using (var countCommand = new SqlCommand("SELECT COUNT(*) FROM containers WHERE name LIKE @name", connection)) {
-                                    countCommand.Parameters.AddWithValue("@name", newContainer.name + "%");
-                                    int count = (int)countCommand.ExecuteScalar();
-                                    newContainer.name = $"{newContainer.name}_{count + 1}";
-                                }
-                            }
-                            else {
-                                throw;
-                            }
+                // Validas o XML enviado no body com o XSD
+                string xsdPath = HttpContext.Current.Server.MapPath("~/App_Data/ContainerSchema.xsd");
+                if (!ValidateXmlAgainstSchema(xmlData, xsdPath))
+                {
+                    return BadRequest("Invalid XML data format.");
+                }
+
+                // passas o XML para o modelo Container
+                Models.Container newContainer;
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(Models.Container));
+                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement))
+                {
+                    newContainer = (Models.Container)xmlSerializer.Deserialize(xmlNodeReader);
+                }
+
+                // Acrecentas os valores que o sistema coloca
+                newContainer.creation_datetime = DateTime.Now;
+
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    // tenta inserir na BD uma nova aplicação
+                    try
+                    {
+                        using (var command = new SqlCommand("INSERT INTO containers (name, creation_datetime, parent) OUTPUT INSERTED.id VALUES (@name, @creation_datetime, @parent)", connection))
+                        {
+                            command.Parameters.AddWithValue("@name", newContainer.name);
+                            command.Parameters.AddWithValue("@creation_datetime", newContainer.creation_datetime);
+                            command.Parameters.AddWithValue("@parent", newContainer.parent);
+                            newContainer.id = (int)command.ExecuteScalar();
                         }
                     }
-                } while (true);
+                    catch (SqlException e)
+                    {
+                        if (e.Number == 2627)
+                        {
+                            using (var countCommand = new SqlCommand("SELECT COUNT(*) FROM containers WHERE name LIKE @name", connection))
+                            {
+                                countCommand.Parameters.AddWithValue("@name", newContainer.name + "%");
+                                int count = (int)countCommand.ExecuteScalar();
+                                newContainer.name = $"{newContainer.name}_{count + 1}";
+                            }
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                }
 
-                return Ok(newContainer);
+                return Ok(newContainer); // aqui apesar de ser um POST, acho que faz sentido devolver a resource criada ao utilizador porque pode acabar por ter um nome diferente do que ele escolheu
             }
-            catch (Exception) {
+            catch (Exception)
+            {
                 return InternalServerError();
             }
         }
+
 
         [HttpPut]
         [Route("{applicationName}/{containerName}")]
@@ -581,14 +630,66 @@ namespace WebApplication1.Controllers {
 
 
         [HttpPost]
-        [Route("{applicationName}/{containerName}")]
-        public IHttpActionResult PostRecordAsync(string applicationName, string containerName, Record newRecord) {
-            try {
-                using (var conn = new SqlConnection(connectionString)) {
-                    conn.Open();
+        [Route()]
+        public IHttpActionResult PostRecordAsync(string applicationName, string containerName, [FromBody] XmlDocument xmlData)
+        {
+            try
+            {
+                // recordName com o paramentro do url e o xmlData com o body que esta a ser enviado(onde mandamos o novo modelo)
+                if (xmlData == null)
+                {
+                    return BadRequest("Invalid application data.");
+                }
 
-                    // Lógica de inserção aqui
+                // Validas o XML enviado no body com o XSD
+                string xsdPath = HttpContext.Current.Server.MapPath("~/App_Data/RecordSchema.xsd");
+                if (!ValidateXmlAgainstSchema(xmlData, xsdPath))
+                {
+                    return BadRequest("Invalid XML data format.");
+                }
 
+                // passas o XML para o modelo Record
+                Models.Record newRecord;
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(Models.Record));
+                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement))
+                {
+                    newRecord = (Models.Record)xmlSerializer.Deserialize(xmlNodeReader);
+                }
+
+                // Acrecentas os valores que o sistema coloca
+                newRecord.creation_datetime = DateTime.Now;
+
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    // tenta inserir na BD uma nova aplicação
+                    try
+                    {
+                        using (var command = new SqlCommand("INSERT INTO records (name, content, creation_datetime, parent) OUTPUT INSERTED.id VALUES (@name, @content, @creation_datetime, @parent)", connection))
+                        {
+                            command.Parameters.AddWithValue("@name", newRecord.name);
+                            command.Parameters.AddWithValue("@content", newRecord.content);
+                            command.Parameters.AddWithValue("@creation_datetime", newRecord.creation_datetime);
+                            command.Parameters.AddWithValue("@parent", newRecord.parent);
+                            newRecord.id = (int)command.ExecuteScalar();
+                        }
+                    }
+                    catch (SqlException e)
+                    {
+                        if (e.Number == 2627)
+                        {
+                            using (var countCommand = new SqlCommand("SELECT COUNT(*) FROM containers WHERE name LIKE @name", connection))
+                            {
+                                countCommand.Parameters.AddWithValue("@name", newRecord.name + "%");
+                                int count = (int)countCommand.ExecuteScalar();
+                                newRecord.name = $"{newRecord.name}_{count + 1}";
+                            }
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
 
                     Record newRecordInserted = null;    // Preciso desta variável aqui para a notificação, que é basicamente o "newRecord" mas com as alterações que a BD fez
                                                         // Possivelmente algo parecido com o que foi feito no DeleteRecord (mas com lógica diferente, porque é um POST em vez de DELETE)
@@ -599,22 +700,28 @@ namespace WebApplication1.Controllers {
                         "JOIN containers c on n.parent = c.id " +
                         "WHERE c.name = @containerName " +
                         "AND n.event = 1 " +
-                        "AND n.enabled = 1", conn)) {
+                        "AND n.enabled = 1", conn))
+                    {
                         command.Parameters.AddWithValue("@containerName", containerName);
 
-                        using (var reader = command.ExecuteReader()) {
-                            while (reader.Read()) {
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
                                 Console.WriteLine("Notification: " + reader["name"]);
-                                EventNotification eventNotification = new EventNotification {
+                                EventNotification eventNotification = new EventNotification
+                                {
                                     record = newRecordInserted,
                                     @event = "creation"
                                 };
                                 // HTTP
-                                if (((string)reader["endpoint"]).StartsWith("http://")) {
+                                if (((string)reader["endpoint"]).StartsWith("http://"))
+                                {
                                     SendHTTPNotification((string)reader["endpoint"], eventNotification);
                                 }
                                 // MQTT
-                                else {
+                                else
+                                {
                                     string channelName = "api/somiod/" + applicationName + "/" + containerName;
                                     SendMQTTNotification(channelName, (string)reader["endpoint"], eventNotification);
                                 }
@@ -623,12 +730,14 @@ namespace WebApplication1.Controllers {
                     }
                 }
 
-                return Ok();
+                return Ok(newRecord); // aqui apesar de ser um POST, acho que faz sentido devolver a resource criada ao utilizador porque pode acabar por ter um nome diferente do que ele escolheu
             }
-            catch (Exception) {
+            catch (Exception)
+            {
                 return InternalServerError();
             }
         }
+
 
         [HttpDelete]
         [Route("{applicationName}/{containerName}/record/{recordName}")]
@@ -764,7 +873,80 @@ namespace WebApplication1.Controllers {
             }
         }
 
-        // POST
+        [HttpPost]
+        [Route()]
+        public IHttpActionResult PostNotification([FromBody] XmlDocument xmlData)
+        {
+            try
+            {
+                // notificationName com o paramentro do url e o xmlData com o body que esta a ser enviado(onde mandamos o novo modelo)
+                if (xmlData == null)
+                {
+                    return BadRequest("Invalid application data.");
+                }
+
+                // Validas o XML enviado no body com o XSD
+                string xsdPath = HttpContext.Current.Server.MapPath("~/App_Data/NotificationSchema.xsd");
+                if (!ValidateXmlAgainstSchema(xmlData, xsdPath))
+                {
+                    return BadRequest("Invalid XML data format.");
+                }
+
+                // passas o XML para o modelo Notification
+                Models.Notification newNotification;
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(Models.Notification));
+                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement))
+                {
+                    newNotification = (Models.Notification)xmlSerializer.Deserialize(xmlNodeReader);
+                }
+
+                // Acrecentas os valores que o sistema coloca
+                newNotification.creation_datetime = DateTime.Now;
+
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    // tenta inserir na BD uma nova aplicação
+                    try
+                    {
+                        using (var command = new SqlCommand("INSERT INTO notifications (name, creation_datetime, parent, event, endpoint, enabled) OUTPUT INSERTED.id VALUES (@name, @creation_datetime, @parent, @event, @endpoint, @enabled)", connection))
+                        {
+                            command.Parameters.AddWithValue("@name", newNotification.name);
+                            command.Parameters.AddWithValue("@creation_datetime", newNotification.creation_datetime);
+                            command.Parameters.AddWithValue("@parent", newNotification.parent);
+                            command.Parameters.AddWithValue("@event", newNotification.@event);
+                            command.Parameters.AddWithValue("@endpoint", newNotification.endpoint);
+                            command.Parameters.AddWithValue("@enabled", newNotification.enabled);
+                            newNotification.id = (int)command.ExecuteScalar();
+                        }
+                    }
+                    catch (SqlException e)
+                    {
+                        if (e.Number == 2627)
+                        {
+                            using (var countCommand = new SqlCommand("SELECT COUNT(*) FROM containers WHERE name LIKE @name", connection))
+                            {
+                                countCommand.Parameters.AddWithValue("@name", newNotification.name + "%");
+                                int count = (int)countCommand.ExecuteScalar();
+                                newNotification.name = $"{newNotification.name}_{count + 1}";
+                            }
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                }
+
+                return Ok(newNotification); // aqui apesar de ser um POST, acho que faz sentido devolver a resource criada ao utilizador porque pode acabar por ter um nome diferente do que ele escolheu
+            }
+            catch (Exception)
+            {
+                return InternalServerError();
+            }
+        }
+
+
 
         // DELETE
 
