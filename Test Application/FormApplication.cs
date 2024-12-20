@@ -208,7 +208,7 @@ namespace Test_Application
 
                 if (!xmlResponse.Descendants("name").Any())
                 {
-                    // Show a dialog box with Return and Continue buttons
+                    //Dialog box with Return and Continue buttons
                     DialogResult result = MessageBox.Show(
                         "There are no containers available for this application.\nWould you like to continue?",
                         "No Containers Found",
@@ -227,7 +227,6 @@ namespace Test_Application
                 return;
             }
 
-            // Proceed to show the containers form
             FormContainer formContainers = new FormContainer(selectedApplication);
             formContainers.ShowDialog();
         }

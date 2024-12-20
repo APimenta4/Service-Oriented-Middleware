@@ -50,9 +50,9 @@ namespace Test_Application
                     var xmlResponse = XDocument.Parse(response.Content);
                     listBox1.Items.Clear();
 
-                    foreach (var appElement in xmlResponse.Descendants("name"))
+                    foreach (var element in xmlResponse.Descendants("name"))
                     {
-                        string containerName = appElement.Value;
+                        string containerName = element.Value;
                         listBox1.Items.Add(containerName);
                     }
                 }
@@ -63,7 +63,7 @@ namespace Test_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading applications: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error loading containers: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -82,6 +82,7 @@ namespace Test_Application
             groupBox2.Visible = true;
             btnDelete.Visible = true;
             btnRecords.Visible = true;
+            btnNotification.Visible = true;
 
 
         }
@@ -256,12 +257,28 @@ namespace Test_Application
 
         private void btnRecords_Click(object sender, EventArgs e)
         {
-            //TODO: Implement records
+            string selectedContainer = listBox1.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(selectedContainer))
+            {
+                MessageBox.Show("Please select a container to view records.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            FormRecords formRecords = new FormRecords(applicationName, selectedContainer);
+            formRecords.ShowDialog();
+
         }
 
         private void btnNotification_Click(object sender, EventArgs e)
         {
-            //TODO: Implement notification
+            
+            string selectedContainer = listBox1.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(selectedContainer))
+            {
+                MessageBox.Show("Please select a container to view notifications.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            FormNotifications formNotifications = new FormNotifications(applicationName, selectedContainer);
+            formNotifications.ShowDialog();
         }
     }
 }
