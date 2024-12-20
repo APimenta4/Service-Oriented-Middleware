@@ -42,6 +42,10 @@
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.lblID = new System.Windows.Forms.Label();
+            this.lblCreationDate = new System.Windows.Forms.Label();
+            this.lblAppID = new System.Windows.Forms.Label();
+            this.lblCreationAppDAte = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -97,7 +101,7 @@
             // 
             // btnUpdate
             // 
-            this.btnUpdate.Location = new System.Drawing.Point(356, 264);
+            this.btnUpdate.Location = new System.Drawing.Point(356, 285);
             this.btnUpdate.Name = "btnUpdate";
             this.btnUpdate.Size = new System.Drawing.Size(268, 30);
             this.btnUpdate.TabIndex = 5;
@@ -137,7 +141,7 @@
             // 
             // txtBoxUpdateApp
             // 
-            this.txtBoxUpdateApp.Location = new System.Drawing.Point(356, 238);
+            this.txtBoxUpdateApp.Location = new System.Drawing.Point(356, 259);
             this.txtBoxUpdateApp.Name = "txtBoxUpdateApp";
             this.txtBoxUpdateApp.Size = new System.Drawing.Size(268, 20);
             this.txtBoxUpdateApp.TabIndex = 12;
@@ -176,7 +180,6 @@
             this.groupBox1.Size = new System.Drawing.Size(245, 116);
             this.groupBox1.TabIndex = 15;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "groupBox1";
             // 
             // label2
             // 
@@ -189,11 +192,57 @@
             this.label2.TabIndex = 16;
             this.label2.Text = "Insert the app name";
             // 
+            // lblID
+            // 
+            this.lblID.AutoSize = true;
+            this.lblID.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblID.Location = new System.Drawing.Point(353, 186);
+            this.lblID.Name = "lblID";
+            this.lblID.Size = new System.Drawing.Size(24, 13);
+            this.lblID.TabIndex = 16;
+            this.lblID.Text = "ID:";
+            this.lblID.Visible = false;
+            // 
+            // lblCreationDate
+            // 
+            this.lblCreationDate.AutoSize = true;
+            this.lblCreationDate.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblCreationDate.Location = new System.Drawing.Point(353, 212);
+            this.lblCreationDate.Name = "lblCreationDate";
+            this.lblCreationDate.Size = new System.Drawing.Size(89, 13);
+            this.lblCreationDate.TabIndex = 17;
+            this.lblCreationDate.Text = "Creation Date:";
+            this.lblCreationDate.Visible = false;
+            // 
+            // lblAppID
+            // 
+            this.lblAppID.AutoSize = true;
+            this.lblAppID.Location = new System.Drawing.Point(500, 186);
+            this.lblAppID.Name = "lblAppID";
+            this.lblAppID.Size = new System.Drawing.Size(35, 13);
+            this.lblAppID.TabIndex = 18;
+            this.lblAppID.Text = "label3";
+            this.lblAppID.Visible = false;
+            // 
+            // lblCreationAppDAte
+            // 
+            this.lblCreationAppDAte.AutoSize = true;
+            this.lblCreationAppDAte.Location = new System.Drawing.Point(500, 212);
+            this.lblCreationAppDAte.Name = "lblCreationAppDAte";
+            this.lblCreationAppDAte.Size = new System.Drawing.Size(35, 13);
+            this.lblCreationAppDAte.TabIndex = 19;
+            this.lblCreationAppDAte.Text = "label4";
+            this.lblCreationAppDAte.Visible = false;
+            // 
             // FormApplication
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(642, 406);
+            this.Controls.Add(this.lblCreationAppDAte);
+            this.Controls.Add(this.lblAppID);
+            this.Controls.Add(this.lblCreationDate);
+            this.Controls.Add(this.lblID);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.lblInfo);
             this.Controls.Add(this.txtBoxUpdateApp);
@@ -206,6 +255,7 @@
             this.Controls.Add(this.lblApplication);
             this.Name = "FormApplication";
             this.Text = "Application";
+            this.Load += new System.EventHandler(this.FormApplication_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
@@ -229,5 +279,9 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label lblID;
+        private System.Windows.Forms.Label lblCreationDate;
+        private System.Windows.Forms.Label lblAppID;
+        private System.Windows.Forms.Label lblCreationAppDAte;
     }
 }

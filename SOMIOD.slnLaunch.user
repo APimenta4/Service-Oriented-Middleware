@@ -1,0 +1,16 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Name": "WebApplication1\\SomiodAPI.csproj",
+        "Action": "Start",
+        "DebugTarget": ""
+      },
+      {
+        "Name": "Test Application\\Test Application.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

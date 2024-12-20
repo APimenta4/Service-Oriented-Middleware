@@ -34,7 +34,6 @@ C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\System.Text
 C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\System.Threading.Tasks.Extensions.xml
 C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\System.ValueTuple.xml
 C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test Application.csproj.AssemblyReference.cache
-C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test_Application.TestForm.resources
 C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test_Application.Properties.Resources.resources
 C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test Application.csproj.GenerateResource.cache
 C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test Application.csproj.CoreCompileInputs.cache
@@ -42,3 +41,4 @@ C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test App.5F
 C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test Application.exe
 C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test Application.pdb
 C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test_Application.FormApplication.resources
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test_Application.FormContainer.resources

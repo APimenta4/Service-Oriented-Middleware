@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using RestSharp;
-using Newtonsoft.Json.Linq;
 
 namespace Test_Application
 {
@@ -18,7 +17,7 @@ namespace Test_Application
         private const string ApiUrl = "http://localhost:52653/api/somiod";
         private const string HeaderName = "somiod-locate";
         RestClient client = null;
-        List<Applications> apps = null;
+
         public FormApplication()
         {
             InitializeComponent();
@@ -34,21 +33,20 @@ namespace Test_Application
         {
             try
             {
-                apps = new List<Applications>();
                 var request = new RestRequest(ApiUrl, Method.Get);
-
-
                 request.AddHeader(HeaderName, "application");
-
+                request.AddHeader("Accept", "application/xml");
                 RestResponse response = client.Execute(request);
+
                 if (response.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    var jsonResponse = JObject.Parse(response.Content);
+                    var xmlResponse = XDocument.Parse(response.Content);
                     listBox1.Items.Clear();
-                    foreach (string appName in jsonResponse["applications"]["name"])
+
+                    foreach (var appElement in xmlResponse.Descendants("name"))
                     {
+                        string appName = appElement.Value;
                         listBox1.Items.Add(appName);
-                        apps.Add(new Applications { Name = appName });
                     }
                 }
                 else
@@ -60,9 +58,7 @@ namespace Test_Application
             {
                 MessageBox.Show($"Error loading applications: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
         }
-
 
         private void btnCreateApplication_Click(object sender, EventArgs e)
         {
@@ -72,6 +68,7 @@ namespace Test_Application
                 MessageBox.Show("Please enter an application name.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+
             try
             {
                 XDocument xmlData = new XDocument(
@@ -81,11 +78,13 @@ namespace Test_Application
                 );
 
                 var request = new RestRequest(ApiUrl, Method.Post);
-                request.AddHeader(HeaderName, "application"); // DONT THIS HERE IS NECESSARY
-                request.RequestFormat = DataFormat.Xml;
+                request.AddHeader("Content-Type", "application/xml");
+                request.AddHeader("Accept", "application/xml");
+                request.AddHeader(HeaderName, "application");
                 request.AddParameter("application/xml", xmlData.ToString(), ParameterType.RequestBody);
 
                 var response = client.Execute(request);
+
                 if (response.StatusCode == System.Net.HttpStatusCode.Created)
                 {
                     MessageBox.Show($"Application '{applicationName}' created successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -100,7 +99,6 @@ namespace Test_Application
             {
                 MessageBox.Show($"Error creating application: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
@@ -117,10 +115,12 @@ namespace Test_Application
                 string url = ApiUrl + $"/{selectedApplication}";
                 var request = new RestRequest(url, Method.Delete);
 
+                request.AddHeader("Content-Type", "application/xml");
+                request.AddHeader("Accept", "application/xml");
                 request.AddHeader(HeaderName, "application");
-                request.RequestFormat = DataFormat.Json;
 
                 RestResponse response = client.Execute(request);
+
                 if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
                 {
                     MessageBox.Show($"Application '{selectedApplication}' deleted successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -163,11 +163,13 @@ namespace Test_Application
 
                 string url = $"{ApiUrl}/{selectedApplication}";
                 var request = new RestRequest(url, Method.Put);
+                request.AddHeader("Content-Type", "application/xml");
+                request.AddHeader("Accept", "application/xml");
                 request.AddHeader(HeaderName, "application");
-                request.RequestFormat = DataFormat.Xml;
                 request.AddParameter("application/xml", xmlData.ToString(), ParameterType.RequestBody);
 
                 var response = client.Execute(request);
+
                 if (response.StatusCode == System.Net.HttpStatusCode.OK)
                 {
                     MessageBox.Show($"Application '{selectedApplication}' updated successfully to '{newApplicationName}'.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -186,34 +188,128 @@ namespace Test_Application
 
         private void btnContainers_Click(object sender, EventArgs e)
         {
-            // Open a new form to display the containers
+            string selectedApplication = listBox1.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(selectedApplication))
+            {
+                MessageBox.Show("Please select an application to view its containers.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string url = $"{ApiUrl}/{selectedApplication}";
+            var request = new RestRequest(url, Method.Get);
+            request.AddHeader(HeaderName, "container");
+            request.AddHeader("Accept", "application/xml");
+
+            RestResponse response = client.Execute(request);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var xmlResponse = XDocument.Parse(response.Content);
+
+                if (!xmlResponse.Descendants("name").Any())
+                {
+                    // Show a dialog box with Return and Continue buttons
+                    DialogResult result = MessageBox.Show(
+                        "There are no containers available for this application.\nWould you like to continue?",
+                        "No Containers Found",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question);
+
+                    if (result == DialogResult.No)
+                    {
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show($"Error fetching containers: {response.StatusDescription}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Proceed to show the containers form
+            FormContainer formContainers = new FormContainer(selectedApplication);
+            formContainers.ShowDialog();
         }
+
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string selectedApp = listBox1.SelectedItem.ToString();
-            Applications app = FindAppByName(selectedApp);
-            lblAppName.Text = app.Name;
 
+            if (listBox1.SelectedItem != null)
+            {
+                string selectedApp = listBox1.SelectedItem.ToString();
+                getApplicationInfo(selectedApp);
+                ShowApplicationDetails();
+            }
 
-            lblAppName.Visible = true;
-            txtBoxUpdateApp.Visible = true
-            btnUpdate.Visible = true;
-            btnContainers.Enabled = true;
-            btnDelete.Enabled = true;
 
         }
 
-        private Applications FindAppByName(string selectedApp)
+        private void ShowApplicationDetails()
         {
-            foreach (Applications app in apps)
+            lblAppID.Visible = true;
+            lblID.Visible = true;
+            lblCreationDate.Visible = true;
+            lblCreationAppDAte.Visible = true;
+            lblAppName.Visible = true;
+            txtBoxUpdateApp.Visible = true;
+            btnUpdate.Visible = true;
+            btnContainers.Visible = true;
+            btnDelete.Visible = true;
+        }
+
+
+        private void getApplicationInfo(string applicationName)
+        {
+            try
             {
-                if (app.Name == selectedApp)
+
+                var request = new RestRequest($"{ApiUrl}/{applicationName}", Method.Get);
+                request.AddHeader("Accept", "application/xml");
+                RestResponse response = client.Execute(request);
+
+
+                if (response.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    return app;
+                    var xmlResponse = XDocument.Parse(response.Content);
+                    var appElement = xmlResponse.Element("Application");
+                    if (appElement != null)
+                    {
+                        string appId = appElement.Element("id")?.Value;
+                        string appName = appElement.Element("name")?.Value;
+                        string creationDateTimeRaw = appElement.Element("creation_datetime")?.Value;
+
+                        string formattedDateTime = string.Empty;
+                        if (DateTime.TryParse(creationDateTimeRaw, out DateTime creationDateTime))
+                        {
+                            formattedDateTime = creationDateTime.ToString("HH:mm:ss dd-MM-yyyy");
+                        }
+                        else
+                        {
+                            formattedDateTime = "Invalid Date Format";
+                        }
+
+                        lblAppID.Text = appId;
+                        lblAppName.Text = appName;
+                        lblCreationAppDAte.Text = formattedDateTime;
+                    }
+
+                }
+                else
+                {
+                    MessageBox.Show($"Error fetching application info: {response.StatusDescription}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-            return null;
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error fetching application info: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void FormApplication_Load(object sender, EventArgs e)
+        {
+            LoadApplications();
         }
     }
 }
