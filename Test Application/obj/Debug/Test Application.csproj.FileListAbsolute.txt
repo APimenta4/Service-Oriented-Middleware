@@ -8,3 +8,37 @@ C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\obj\Debug\Test Applicatio
 C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\obj\Debug\Test Application.exe
 C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\obj\Debug\Test Application.pdb
 C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\obj\Debug\Test_Application.TestForm.resources
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\Test Application.exe.config
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\Test Application.exe
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\Test Application.pdb
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\Newtonsoft.Json.dll
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\RestSharp.dll
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\System.Buffers.dll
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\System.Memory.dll
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\System.Numerics.Vectors.dll
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\System.Text.Encodings.Web.dll
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\System.Text.Json.dll
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\System.Threading.Tasks.Extensions.dll
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\System.ValueTuple.dll
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\Microsoft.Bcl.AsyncInterfaces.xml
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\Newtonsoft.Json.xml
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\RestSharp.xml
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\System.Buffers.xml
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\System.Memory.xml
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\System.Numerics.Vectors.xml
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\System.Text.Encodings.Web.xml
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\System.Text.Json.xml
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\System.Threading.Tasks.Extensions.xml
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\bin\Debug\System.ValueTuple.xml
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test Application.csproj.AssemblyReference.cache
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test_Application.TestForm.resources
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test_Application.Properties.Resources.resources
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test Application.csproj.GenerateResource.cache
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test Application.csproj.CoreCompileInputs.cache
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test App.5F5D8746.Up2Date
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test Application.exe
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test Application.pdb
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test_Application.FormApplication.resources
