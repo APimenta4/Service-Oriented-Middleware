@@ -102,8 +102,7 @@ namespace Test_Application
 
             cmbEventType.Items.Clear();
             cmbEventType.Items.Add(new { Text = "1 - Creation", Value = "1" });
-            cmbEventType.Items.Add(new { Text = "2 - Update", Value = "2" });
-            cmbEventType.Items.Add(new { Text = "3 - Deletion", Value = "3" });
+            cmbEventType.Items.Add(new { Text = "2 - Deletion", Value = "2" });
             cmbEventType.DisplayMember = "Text";
             cmbEventType.ValueMember = "Value";
         }
@@ -186,16 +185,27 @@ namespace Test_Application
                 return;
             }
 
+            if (!endpoint.StartsWith("http://"))
+            {
+                MessageBox.Show("Endpoint must start with 'http://'", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+
+
             try
             {
 
 
                 XElement notificationElement = new XElement("Notification",
                  new XElement("name", notificationName),
-                 new XElement("event", eventType),
+                    new XElement("event", eventType),
                     new XElement("endpoint", endpoint),
-                    new XElement("enabled", isEnabled.ToString())
-);
+                    new XElement("enabled", isEnabled)
+                    );
+
+
+
                 var request = new RestRequest($"{contUrl}", Method.Post);
                 request.AddHeader("Content-Type", "application/xml");
                 request.AddHeader("Accept", "application/xml");

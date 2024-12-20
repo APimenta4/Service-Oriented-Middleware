@@ -53,7 +53,7 @@
             // 
             this.btnCreateApplication.Location = new System.Drawing.Point(18, 85);
             this.btnCreateApplication.Name = "btnCreateApplication";
-            this.btnCreateApplication.Size = new System.Drawing.Size(221, 25);
+            this.btnCreateApplication.Size = new System.Drawing.Size(232, 25);
             this.btnCreateApplication.TabIndex = 0;
             this.btnCreateApplication.Text = "Create";
             this.btnCreateApplication.UseVisualStyleBackColor = true;
@@ -125,7 +125,7 @@
             // 
             this.txtBoxCreateApp.Location = new System.Drawing.Point(18, 62);
             this.txtBoxCreateApp.Name = "txtBoxCreateApp";
-            this.txtBoxCreateApp.Size = new System.Drawing.Size(221, 20);
+            this.txtBoxCreateApp.Size = new System.Drawing.Size(232, 20);
             this.txtBoxCreateApp.TabIndex = 7;
             // 
             // lblAppName
@@ -177,7 +177,7 @@
             this.groupBox1.Controls.Add(this.btnCreateApplication);
             this.groupBox1.Location = new System.Drawing.Point(385, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(245, 116);
+            this.groupBox1.Size = new System.Drawing.Size(256, 116);
             this.groupBox1.TabIndex = 15;
             this.groupBox1.TabStop = false;
             // 
@@ -238,7 +238,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(642, 406);
+            this.ClientSize = new System.Drawing.Size(653, 406);
             this.Controls.Add(this.lblCreationAppDAte);
             this.Controls.Add(this.lblAppID);
             this.Controls.Add(this.lblCreationDate);
