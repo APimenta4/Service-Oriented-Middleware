@@ -46,6 +46,8 @@
             this.lblCreationDate = new System.Windows.Forms.Label();
             this.lblAppID = new System.Windows.Forms.Label();
             this.lblCreationAppDAte = new System.Windows.Forms.Label();
+            this.btnNotification = new System.Windows.Forms.Button();
+            this.btnRecords = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -53,7 +55,7 @@
             // 
             this.btnCreateApplication.Location = new System.Drawing.Point(18, 85);
             this.btnCreateApplication.Name = "btnCreateApplication";
-            this.btnCreateApplication.Size = new System.Drawing.Size(221, 25);
+            this.btnCreateApplication.Size = new System.Drawing.Size(232, 25);
             this.btnCreateApplication.TabIndex = 0;
             this.btnCreateApplication.Text = "Create";
             this.btnCreateApplication.UseVisualStyleBackColor = true;
@@ -90,9 +92,9 @@
             // 
             // btnDelete
             // 
-            this.btnDelete.Location = new System.Drawing.Point(423, 361);
+            this.btnDelete.Location = new System.Drawing.Point(356, 361);
             this.btnDelete.Name = "btnDelete";
-            this.btnDelete.Size = new System.Drawing.Size(112, 30);
+            this.btnDelete.Size = new System.Drawing.Size(306, 30);
             this.btnDelete.TabIndex = 4;
             this.btnDelete.Text = "Delete Application";
             this.btnDelete.UseVisualStyleBackColor = true;
@@ -103,7 +105,7 @@
             // 
             this.btnUpdate.Location = new System.Drawing.Point(356, 285);
             this.btnUpdate.Name = "btnUpdate";
-            this.btnUpdate.Size = new System.Drawing.Size(268, 30);
+            this.btnUpdate.Size = new System.Drawing.Size(306, 30);
             this.btnUpdate.TabIndex = 5;
             this.btnUpdate.Text = "Update Application Name";
             this.btnUpdate.UseVisualStyleBackColor = true;
@@ -125,7 +127,7 @@
             // 
             this.txtBoxCreateApp.Location = new System.Drawing.Point(18, 62);
             this.txtBoxCreateApp.Name = "txtBoxCreateApp";
-            this.txtBoxCreateApp.Size = new System.Drawing.Size(221, 20);
+            this.txtBoxCreateApp.Size = new System.Drawing.Size(232, 20);
             this.txtBoxCreateApp.TabIndex = 7;
             // 
             // lblAppName
@@ -143,7 +145,7 @@
             // 
             this.txtBoxUpdateApp.Location = new System.Drawing.Point(356, 259);
             this.txtBoxUpdateApp.Name = "txtBoxUpdateApp";
-            this.txtBoxUpdateApp.Size = new System.Drawing.Size(268, 20);
+            this.txtBoxUpdateApp.Size = new System.Drawing.Size(306, 20);
             this.txtBoxUpdateApp.TabIndex = 12;
             this.txtBoxUpdateApp.Visible = false;
             this.txtBoxUpdateApp.WordWrap = false;
@@ -177,7 +179,7 @@
             this.groupBox1.Controls.Add(this.btnCreateApplication);
             this.groupBox1.Location = new System.Drawing.Point(385, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(245, 116);
+            this.groupBox1.Size = new System.Drawing.Size(256, 116);
             this.groupBox1.TabIndex = 15;
             this.groupBox1.TabStop = false;
             // 
@@ -234,11 +236,35 @@
             this.lblCreationAppDAte.Text = "label4";
             this.lblCreationAppDAte.Visible = false;
             // 
+            // btnNotification
+            // 
+            this.btnNotification.Location = new System.Drawing.Point(356, 321);
+            this.btnNotification.Name = "btnNotification";
+            this.btnNotification.Size = new System.Drawing.Size(150, 23);
+            this.btnNotification.TabIndex = 20;
+            this.btnNotification.Text = "Get Application Notificaion";
+            this.btnNotification.UseVisualStyleBackColor = true;
+            this.btnNotification.Visible = false;
+            this.btnNotification.Click += new System.EventHandler(this.btnNotification_Click);
+            // 
+            // btnRecords
+            // 
+            this.btnRecords.Location = new System.Drawing.Point(512, 321);
+            this.btnRecords.Name = "btnRecords";
+            this.btnRecords.Size = new System.Drawing.Size(150, 23);
+            this.btnRecords.TabIndex = 21;
+            this.btnRecords.Text = "Get Application Records";
+            this.btnRecords.UseVisualStyleBackColor = true;
+            this.btnRecords.Visible = false;
+            this.btnRecords.Click += new System.EventHandler(this.btnRecords_Click);
+            // 
             // FormApplication
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(642, 406);
+            this.ClientSize = new System.Drawing.Size(692, 406);
+            this.Controls.Add(this.btnRecords);
+            this.Controls.Add(this.btnNotification);
             this.Controls.Add(this.lblCreationAppDAte);
             this.Controls.Add(this.lblAppID);
             this.Controls.Add(this.lblCreationDate);
@@ -283,5 +309,7 @@
         private System.Windows.Forms.Label lblCreationDate;
         private System.Windows.Forms.Label lblAppID;
         private System.Windows.Forms.Label lblCreationAppDAte;
+        private System.Windows.Forms.Button btnNotification;
+        private System.Windows.Forms.Button btnRecords;
     }
 }

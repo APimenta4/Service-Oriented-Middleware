@@ -259,6 +259,8 @@ namespace Test_Application
             btnUpdate.Visible = true;
             btnContainers.Visible = true;
             btnDelete.Visible = true;
+            btnRecords.Visible = true;
+            btnNotification.Visible = true;
         }
 
 
@@ -312,6 +314,57 @@ namespace Test_Application
         private void FormApplication_Load(object sender, EventArgs e)
         {
             LoadApplications();
+        }
+
+        private void btnNotification_Click(object sender, EventArgs e)
+        {
+            getNotifRecords("notification");
+        }
+
+        private void btnRecords_Click(object sender, EventArgs e)
+        {
+            getNotifRecords("record");
+        }
+
+        private void getNotifRecords(string type)
+        {
+            string selectedApplication = listBox1.SelectedItem?.ToString();
+            string url = $"{ApiUrl}/{selectedApplication}";
+            if (string.IsNullOrEmpty(selectedApplication))
+            {
+                MessageBox.Show("Please select an application to view its records.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            try
+            {
+                var request = new RestRequest(url, Method.Get);
+                request.AddHeader(HeaderName, type);
+                request.AddHeader("Accept", "application/xml");
+                RestResponse response = client.Execute(request);
+                if (response == null || response.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    MessageBox.Show($"Error fetching {type}s: {response?.StatusDescription ?? "No response from server"}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                var xmlResponse = XDocument.Parse(response.Content);
+                if (!xmlResponse.Descendants("name").Any())
+                {
+                    MessageBox.Show($"There are no {type}s available for this application. Please select a different application.",
+                                    $"No {type}s Found",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Warning);
+                    return;
+                }
+
+                FormNotifRecodsTable formNotifRecodsTable = new FormNotifRecodsTable(selectedApplication, type);
+                formNotifRecodsTable.ShowDialog();
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error fetching {type}s: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

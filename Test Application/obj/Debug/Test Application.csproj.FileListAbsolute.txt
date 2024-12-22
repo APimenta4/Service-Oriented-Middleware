@@ -43,6 +43,7 @@ C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test_Applic
 C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test_Application.FormContainer.resources
 C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test_Application.FormRecords.resources
 C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test_Application.FormNotifications.resources
+<<<<<<< HEAD
 C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\bin\Debug\Microsoft.Bcl.AsyncInterfaces.dll
 C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\bin\Debug\Newtonsoft.Json.dll
 C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\bin\Debug\RestSharp.dll
@@ -70,3 +71,6 @@ C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\obj\Debug\Test_Applicatio
 C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\obj\Debug\Test_Application.FormNotifications.resources
 C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\obj\Debug\Test_Application.FormRecords.resources
 C:\Users\Utilizador\Desktop\IS\SOMIOD\Test Application\obj\Debug\Test App.5F5D8746.Up2Date
+=======
+C:\Users\ricar\Desktop\Proj\IS\IS-Project\Test Application\obj\Debug\Test_Application.FormNotifRecodsTable.resources
+>>>>>>> 3e5aaab592c9f9c301490f3ddb8549d5b0c3141d

@@ -29,6 +29,10 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.cmbEventType = new System.Windows.Forms.ComboBox();
+            this.chkEnabled = new System.Windows.Forms.CheckBox();
+            this.txtEndpoint = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -51,16 +55,15 @@
             this.lblCreationDate = new System.Windows.Forms.Label();
             this.lblID = new System.Windows.Forms.Label();
             this.lblName = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.txtEndpoint = new System.Windows.Forms.TextBox();
-            this.chkEnabled = new System.Windows.Forms.CheckBox();
-            this.cmbEventType = new System.Windows.Forms.ComboBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.lblInfo = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.label6);
             this.groupBox1.Controls.Add(this.cmbEventType);
             this.groupBox1.Controls.Add(this.chkEnabled);
             this.groupBox1.Controls.Add(this.txtEndpoint);
@@ -73,9 +76,44 @@
             this.groupBox1.Controls.Add(this.btnCreate);
             this.groupBox1.Location = new System.Drawing.Point(363, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(276, 213);
+            this.groupBox1.Size = new System.Drawing.Size(321, 213);
             this.groupBox1.TabIndex = 27;
             this.groupBox1.TabStop = false;
+            // 
+            // cmbEventType
+            // 
+            this.cmbEventType.FormattingEnabled = true;
+            this.cmbEventType.Location = new System.Drawing.Point(88, 88);
+            this.cmbEventType.Name = "cmbEventType";
+            this.cmbEventType.Size = new System.Drawing.Size(106, 21);
+            this.cmbEventType.TabIndex = 24;
+            // 
+            // chkEnabled
+            // 
+            this.chkEnabled.AutoSize = true;
+            this.chkEnabled.Location = new System.Drawing.Point(32, 144);
+            this.chkEnabled.Name = "chkEnabled";
+            this.chkEnabled.Size = new System.Drawing.Size(65, 17);
+            this.chkEnabled.TabIndex = 23;
+            this.chkEnabled.Text = "Enabled";
+            this.chkEnabled.UseVisualStyleBackColor = true;
+            // 
+            // txtEndpoint
+            // 
+            this.txtEndpoint.Location = new System.Drawing.Point(88, 116);
+            this.txtEndpoint.Name = "txtEndpoint";
+            this.txtEndpoint.Size = new System.Drawing.Size(106, 20);
+            this.txtEndpoint.TabIndex = 22;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.Location = new System.Drawing.Point(25, 119);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(61, 13);
+            this.label5.TabIndex = 21;
+            this.label5.Text = "Endpoint:";
             // 
             // label4
             // 
@@ -119,7 +157,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(66, 27);
+            this.label1.Location = new System.Drawing.Point(99, 16);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(117, 16);
             this.label1.TabIndex = 14;
@@ -160,7 +198,7 @@
             this.listBox1.FormattingEnabled = true;
             this.listBox1.Location = new System.Drawing.Point(22, 124);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(251, 238);
+            this.listBox1.Size = new System.Drawing.Size(250, 290);
             this.listBox1.TabIndex = 30;
             this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
@@ -180,7 +218,7 @@
             this.groupBox2.Controls.Add(this.lblName);
             this.groupBox2.Location = new System.Drawing.Point(363, 231);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(276, 202);
+            this.groupBox2.Size = new System.Drawing.Size(321, 202);
             this.groupBox2.TabIndex = 31;
             this.groupBox2.TabStop = false;
             this.groupBox2.Visible = false;
@@ -246,7 +284,7 @@
             // 
             this.btnDelete.Location = new System.Drawing.Point(6, 173);
             this.btnDelete.Name = "btnDelete";
-            this.btnDelete.Size = new System.Drawing.Size(264, 23);
+            this.btnDelete.Size = new System.Drawing.Size(309, 23);
             this.btnDelete.TabIndex = 27;
             this.btnDelete.Text = "Delete";
             this.btnDelete.UseVisualStyleBackColor = true;
@@ -300,53 +338,41 @@
             this.lblName.TabIndex = 11;
             this.lblName.Text = "label2";
             // 
-            // label5
+            // label6
             // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(25, 119);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(61, 13);
-            this.label5.TabIndex = 21;
-            this.label5.Text = "Endpoint:";
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Neue Haas Grotesk Text Pro", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.ForeColor = System.Drawing.SystemColors.ActiveCaption;
+            this.label6.Location = new System.Drawing.Point(197, 122);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(118, 14);
+            this.label6.TabIndex = 25;
+            this.label6.Text = "Must start with http://";
             // 
-            // txtEndpoint
+            // lblInfo
             // 
-            this.txtEndpoint.Location = new System.Drawing.Point(88, 116);
-            this.txtEndpoint.Name = "txtEndpoint";
-            this.txtEndpoint.Size = new System.Drawing.Size(106, 20);
-            this.txtEndpoint.TabIndex = 22;
-            // 
-            // chkEnabled
-            // 
-            this.chkEnabled.AutoSize = true;
-            this.chkEnabled.Location = new System.Drawing.Point(88, 143);
-            this.chkEnabled.Name = "chkEnabled";
-            this.chkEnabled.Size = new System.Drawing.Size(65, 17);
-            this.chkEnabled.TabIndex = 23;
-            this.chkEnabled.Text = "Enabled";
-            this.chkEnabled.UseVisualStyleBackColor = true;
-            // 
-            // cmbEventType
-            // 
-            this.cmbEventType.FormattingEnabled = true;
-            this.cmbEventType.Location = new System.Drawing.Point(88, 88);
-            this.cmbEventType.Name = "cmbEventType";
-            this.cmbEventType.Size = new System.Drawing.Size(106, 21);
-            this.cmbEventType.TabIndex = 24;
+            this.lblInfo.AutoSize = true;
+            this.lblInfo.Font = new System.Drawing.Font("Neue Haas Grotesk Text Pro", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblInfo.ForeColor = System.Drawing.SystemColors.ActiveCaption;
+            this.lblInfo.Location = new System.Drawing.Point(20, 101);
+            this.lblInfo.Name = "lblInfo";
+            this.lblInfo.Size = new System.Drawing.Size(229, 14);
+            this.lblInfo.TabIndex = 34;
+            this.lblInfo.Text = "Click in any notification to perform any action";
             // 
             // FormNotifications
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(652, 445);
+            this.ClientSize = new System.Drawing.Size(696, 445);
+            this.Controls.Add(this.lblInfo);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.lblContainerName);
             this.Controls.Add(this.lblTitle);
             this.Controls.Add(this.groupBox1);
             this.Name = "FormNotifications";
-            this.Text = "FormNotifications";
+            this.Text = "Notifications";
             this.Load += new System.EventHandler(this.FormNotifications_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
@@ -386,5 +412,7 @@
         private System.Windows.Forms.TextBox txtEndpoint;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.ComboBox cmbEventType;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label lblInfo;
     }
 }
