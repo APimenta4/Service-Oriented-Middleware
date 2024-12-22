@@ -32,8 +32,16 @@ namespace SmartGreenhouse {
             this.applicationName = applicationName;
             this.containerName = containerName;
 
-            String[] items = FetchItems();
-            // Reverse to array simulate history
+            FetchAndDisplayItems();
+        }
+
+        public void FetchAndDisplayItems() {
+            string[] items = FetchItems();
+
+            // Clear the list of rows
+            panelHistory.Controls.Clear();
+
+            // Reverse the items to simulate history order
             Array.Reverse(items);
 
             foreach (string item in items) {
@@ -47,7 +55,7 @@ namespace SmartGreenhouse {
             string[] results;
             string endpoint = url + applicationName + "/" + containerName;
 
-            var client = new RestClient(url);
+            var client = new RestClient(endpoint);
             var request = new RestRequest();
             request.Method = Method.Get;
             request.AddHeader("Accept", "application/xml");
@@ -58,7 +66,7 @@ namespace SmartGreenhouse {
                 if (response.IsSuccessful) {
                     XmlDocument xmlDoc = new XmlDocument();
                     xmlDoc.LoadXml(response.Content);
-                    XmlNodeList itemNodes = xmlDoc.GetElementsByTagName("string");
+                    XmlNodeList itemNodes = xmlDoc.GetElementsByTagName("name");
 
                     results = new string[itemNodes.Count];
                     for (int i = 0; i < itemNodes.Count; i++) {
@@ -75,8 +83,6 @@ namespace SmartGreenhouse {
 
             return results;
         }
-
-
 
     }
 }

@@ -32,12 +32,11 @@
             // 
             // labelName
             // 
-            this.labelName.AutoSize = true;
-            this.labelName.Font = new System.Drawing.Font("Lato", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelName.Font = new System.Drawing.Font("Lato", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelName.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.labelName.Location = new System.Drawing.Point(-3, 12);
             this.labelName.Name = "labelName";
-            this.labelName.Size = new System.Drawing.Size(145, 28);
+            this.labelName.Size = new System.Drawing.Size(293, 28);
             this.labelName.TabIndex = 5;
             this.labelName.Text = "RecordName";
             // 
@@ -48,7 +47,7 @@
             this.btnDelete.Dock = System.Windows.Forms.DockStyle.Right;
             this.btnDelete.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnDelete.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnDelete.Location = new System.Drawing.Point(347, 0);
+            this.btnDelete.Location = new System.Drawing.Point(370, 0);
             this.btnDelete.Name = "btnDelete";
             this.btnDelete.Size = new System.Drawing.Size(74, 52);
             this.btnDelete.TabIndex = 6;
@@ -62,7 +61,7 @@
             this.btnGet.Dock = System.Windows.Forms.DockStyle.Right;
             this.btnGet.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnGet.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnGet.Location = new System.Drawing.Point(273, 0);
+            this.btnGet.Location = new System.Drawing.Point(296, 0);
             this.btnGet.Name = "btnGet";
             this.btnGet.Size = new System.Drawing.Size(74, 52);
             this.btnGet.TabIndex = 7;
@@ -75,7 +74,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(273, 52);
+            this.panel1.Size = new System.Drawing.Size(296, 52);
             this.panel1.TabIndex = 8;
             // 
             // HistoryRow
@@ -87,9 +86,8 @@
             this.Controls.Add(this.btnGet);
             this.Controls.Add(this.btnDelete);
             this.Name = "HistoryRow";
-            this.Size = new System.Drawing.Size(421, 52);
+            this.Size = new System.Drawing.Size(444, 52);
             this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
             this.ResumeLayout(false);
 
         }

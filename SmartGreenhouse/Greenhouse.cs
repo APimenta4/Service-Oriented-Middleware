@@ -158,7 +158,7 @@ namespace SmartGreenhouse {
         }
 
         public void reloadHumidityPicture() {
-            if(latestHumidityValue > 0 && latestHumidityValue < humidityThreshold) {
+            if(latestHumidityValue > 0 && latestHumidityValue <= humidityThreshold) {
                 pictureBoxHumidity.Image = Properties.Resources.on;
             }
             else {
@@ -169,7 +169,7 @@ namespace SmartGreenhouse {
         public void updateTemperature(int value) {
             // Need this "if" to update the UI from the MQTT class
             if (this.InvokeRequired) {
-                this.Invoke(new Action<int>(updateHumidity), value);
+                this.Invoke(new Action<int>(updateTemperature), value);
             }
             latestTemperatureValue = value;
             temperatureLabel.Text = "Latest Value: " + latestTemperatureValue + "°C";
@@ -177,7 +177,7 @@ namespace SmartGreenhouse {
         }
 
         public void reloadTemperaturePicture() {
-            if (latestTemperatureValue > 0 && latestTemperatureValue < temperatureThreshold) {
+            if (latestTemperatureValue > 0 && latestTemperatureValue >= temperatureThreshold) {
                 pictureBoxTemperature.Image = Properties.Resources.on;
             }
             else {
@@ -188,7 +188,7 @@ namespace SmartGreenhouse {
         public void updateLight(int value) {
             // Need this "if" to update the UI from the MQTT class
             if (this.InvokeRequired) {
-                this.Invoke(new Action<int>(updateHumidity), value);
+                this.Invoke(new Action<int>(updateLight), value);
             }
             latestLightValue = value;
             lightsLabel.Text = "Latest Value: " + latestLightValue + " lux";
@@ -196,7 +196,7 @@ namespace SmartGreenhouse {
         }
 
         public void reloadLightPicture() {
-            if (latestLightValue > 0 && latestLightValue < lightsThreshold) {
+            if (latestLightValue > 0 && latestLightValue <= lightsThreshold) {
                 pictureBoxLights.Image = Properties.Resources.on;
             }
             else {

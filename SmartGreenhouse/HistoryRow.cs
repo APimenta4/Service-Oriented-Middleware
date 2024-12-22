@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Security.Policy;
 using System.Text;
@@ -23,24 +24,35 @@ namespace SmartGreenhouse {
             this.historyWindow = historyWindow;
         }
 
-        private void btnDelete_Click(object sender, EventArgs e) {
-            sendRequest(Method.Delete);
-            historyWindow.FetchItems();
+        private async void btnDelete_Click(object sender, EventArgs e) {
+            await sendRequestAsync(Method.Delete);
+            historyWindow.FetchAndDisplayItems();
         }
 
-        private void btnGet_Click(object sender, EventArgs e) {
-            RestResponse response = sendRequest(Method.Get);
+        private async void btnGet_Click(object sender, EventArgs e) {
+            RestResponse response = await sendRequestAsync(Method.Get);
             XmlDocument responseXml = new XmlDocument();
             responseXml.LoadXml(response.Content);
-            MessageBox.Show(responseXml.OuterXml, labelName.Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+            // Format the XML for better readability
+            StringWriter stringWriter = new StringWriter();
+            XmlTextWriter xmlTextWriter = new XmlTextWriter(stringWriter) {
+                Formatting = Formatting.Indented 
+            };
+            responseXml.WriteTo(xmlTextWriter);
+
+
+            MessageBox.Show(stringWriter.ToString(), labelName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private RestResponse sendRequest(Method httpMethod) {
-            string endpoint = url + historyWindow.ApplicationName + "/" + historyWindow.ContainerName + "/" + labelName.Text;
+        private async Task<RestResponse> sendRequestAsync(Method httpMethod) {
+            string endpoint = url + historyWindow.ApplicationName + "/" + historyWindow.ContainerName + "/record/" + labelName.Text;
             var client = new RestClient(endpoint);
-            var request = new RestRequest();
-            request.Method = httpMethod;
-            var response = client.Execute(request);
+            client.AddDefaultHeader("Accept", "application/xml");
+            var request = new RestRequest {
+                Method = httpMethod
+            };
+            var response = await client.ExecuteAsync(request);
             if (response.IsSuccessful) {
                 return response;
             }
@@ -48,5 +60,6 @@ namespace SmartGreenhouse {
                 throw new Exception(response.ErrorMessage);
             }
         }
+
     }
 }

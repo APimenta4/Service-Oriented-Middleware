@@ -17,7 +17,7 @@ namespace SmartGreenhouse {
         private String humidityTopic;
         private String temperatureTopic;
         private String lightTopic;
-        byte[] qosLevels = { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE };
+        byte[] qosLevels = { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE };
 
         public MqttListener(Greenhouse greenhouseWindow, String humidityTopic, String temperatureTopic, string lightTopic) {
             this.greenhouseWindow = greenhouseWindow;
@@ -30,7 +30,7 @@ namespace SmartGreenhouse {
             mqttClient = new MqttClient(brokerAddress);
             mqttClient.MqttMsgPublishReceived += MqttClient_MqttMsgPublishReceived;
             mqttClient.Connect(Guid.NewGuid().ToString());
-            string[] topics = { humidityTopic, temperatureTopic };
+            string[] topics = { humidityTopic, temperatureTopic, lightTopic };
             mqttClient.Subscribe(topics, qosLevels);
         }
 
@@ -57,13 +57,13 @@ namespace SmartGreenhouse {
                     int value;
                     bool isParsed = int.TryParse(contentNode.InnerText, out value);
                     if (isParsed) {
-                        if (topic == "humidityTopic") {
+                        if (topic == humidityTopic) {
                             greenhouseWindow.updateHumidity(value);
                         }
-                        else if (topic == "temperatureTopic") {
+                        else if (topic == temperatureTopic) {
                             greenhouseWindow.updateTemperature(value);
                         }
-                        else if (topic == "lightTopic") {
+                        else if (topic == lightTopic) {
                             greenhouseWindow.updateLight(value);
                         }
                         else {
