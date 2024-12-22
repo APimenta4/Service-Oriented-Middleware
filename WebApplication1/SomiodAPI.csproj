@@ -132,7 +132,7 @@
     <Content Include="index.html" />
     <Content Include="script.js" />
     <Content Include="scriptCriarTabelas.sql" />
-    <Content Include="scriptSeeder1.0.sql" />
+    <Content Include="scriptSeeder.sql" />
     <Content Include="style.css" />
     <Content Include="Web.config" />
   </ItemGroup>

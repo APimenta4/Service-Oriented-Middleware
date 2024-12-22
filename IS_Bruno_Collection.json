@@ -1,0 +1,1088 @@
+{
+  "name": "IS-Bruno",
+  "version": "1",
+  "items": [
+    {
+      "type": "folder",
+      "name": "Application",
+      "items": [
+        {
+          "type": "http",
+          "name": "All Applications",
+          "seq": 1,
+          "request": {
+            "url": "{{api_somiod}}",
+            "method": "GET",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "somiod-locate",
+                "value": "application",
+                "enabled": true
+              }
+            ],
+            "params": [],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "Application",
+          "seq": 2,
+          "request": {
+            "url": "{{api_somiod}}/:app",
+            "method": "GET",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              }
+            ],
+            "params": [
+              {
+                "name": "app",
+                "value": "Application1",
+                "type": "path",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "Delete Application",
+          "seq": 5,
+          "request": {
+            "url": "{{api_somiod}}/:app",
+            "method": "DELETE",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              }
+            ],
+            "params": [
+              {
+                "name": "app",
+                "value": "Aplication_8",
+                "type": "path",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "Post Application",
+          "seq": 3,
+          "request": {
+            "url": "{{api_somiod}}",
+            "method": "POST",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              }
+            ],
+            "params": [],
+            "body": {
+              "mode": "xml",
+              "json": "{\n  \"name\": \"Ricardinho\"\n}",
+              "xml": "<Application>\n    <name>AP1</name>\n</Application>\n",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "Put Application",
+          "seq": 4,
+          "request": {
+            "url": "{{api_somiod}}/:app",
+            "method": "PUT",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              }
+            ],
+            "params": [
+              {
+                "name": "app",
+                "value": "Application2",
+                "type": "path",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "xml",
+              "xml": "<Application>\n    <name>Application10</name>\n</Application>",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "name": "Container",
+      "items": [
+        {
+          "type": "http",
+          "name": "All Containers of App",
+          "seq": 2,
+          "request": {
+            "url": "{{api_somiod}}/:app",
+            "method": "GET",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "somiod-locate",
+                "value": "container",
+                "enabled": true
+              }
+            ],
+            "params": [
+              {
+                "name": "app",
+                "value": "Application1",
+                "type": "path",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "All Containers",
+          "seq": 1,
+          "request": {
+            "url": "{{api_somiod}}",
+            "method": "GET",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "somiod-locate",
+                "value": "container",
+                "enabled": true
+              }
+            ],
+            "params": [],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "Delete Container",
+          "seq": 6,
+          "request": {
+            "url": "{{api_somiod}}/:app/:cont",
+            "method": "DELETE",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              }
+            ],
+            "params": [
+              {
+                "name": "app",
+                "value": "Application1",
+                "type": "path",
+                "enabled": true
+              },
+              {
+                "name": "cont",
+                "value": "Container1",
+                "type": "path",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "Get Container",
+          "seq": 3,
+          "request": {
+            "url": "{{api_somiod}}/:app/:cont",
+            "method": "GET",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              }
+            ],
+            "params": [
+              {
+                "name": "app",
+                "value": "Application1",
+                "type": "path",
+                "enabled": true
+              },
+              {
+                "name": "cont",
+                "value": "Container1",
+                "type": "path",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "Post Container",
+          "seq": 4,
+          "request": {
+            "url": "{{api_somiod}}/:app",
+            "method": "POST",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              }
+            ],
+            "params": [
+              {
+                "name": "app",
+                "value": "Application1",
+                "type": "path",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "xml",
+              "json": "{\n  \"name\": \"Ricardinho\"\n}",
+              "xml": "<Container>\n    <name>C1</name>\n</Container>\n",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "Put Container",
+          "seq": 5,
+          "request": {
+            "url": "{{api_somiod}}/:app/:cont",
+            "method": "PUT",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              }
+            ],
+            "params": [
+              {
+                "name": "app",
+                "value": "Application1",
+                "type": "path",
+                "enabled": true
+              },
+              {
+                "name": "cont",
+                "value": "Container1",
+                "type": "path",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "xml",
+              "xml": "<Container>\n    <name>C1</name>\n</Container>\n",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "name": "Notification",
+      "items": [
+        {
+          "type": "http",
+          "name": "All Notifications",
+          "seq": 1,
+          "request": {
+            "url": "{{api_somiod}}",
+            "method": "GET",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "somiod-locate",
+                "value": "notification",
+                "enabled": true
+              }
+            ],
+            "params": [],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "All of Application",
+          "seq": 2,
+          "request": {
+            "url": "{{api_somiod}}/:app",
+            "method": "GET",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "somiod-locate",
+                "value": "notification",
+                "enabled": true
+              }
+            ],
+            "params": [
+              {
+                "name": "app",
+                "value": "Application1",
+                "type": "path",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "All of Container",
+          "seq": 3,
+          "request": {
+            "url": "{{api_somiod}}/:app/:cont",
+            "method": "GET",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "somiod-locate",
+                "value": "notification",
+                "enabled": true
+              }
+            ],
+            "params": [
+              {
+                "name": "app",
+                "value": "Application1",
+                "type": "path",
+                "enabled": true
+              },
+              {
+                "name": "cont",
+                "value": "Container1",
+                "type": "path",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "Delete Notification",
+          "seq": 6,
+          "request": {
+            "url": "{{api_somiod}}/:app/:cont/notif/:notif",
+            "method": "DELETE",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              }
+            ],
+            "params": [
+              {
+                "name": "app",
+                "value": "Application2",
+                "type": "path",
+                "enabled": true
+              },
+              {
+                "name": "cont",
+                "value": "Container4",
+                "type": "path",
+                "enabled": true
+              },
+              {
+                "name": "notif",
+                "value": "Notification5",
+                "type": "path",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "Get Notification",
+          "seq": 4,
+          "request": {
+            "url": "{{api_somiod}}/:app/:cont/notif/:notif",
+            "method": "GET",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              }
+            ],
+            "params": [
+              {
+                "name": "app",
+                "value": "Application2",
+                "type": "path",
+                "enabled": true
+              },
+              {
+                "name": "cont",
+                "value": "Container4",
+                "type": "path",
+                "enabled": true
+              },
+              {
+                "name": "notif",
+                "value": "Notification5",
+                "type": "path",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "Post Notification",
+          "seq": 5,
+          "request": {
+            "url": "{{api_somiod}}",
+            "method": "POST",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              }
+            ],
+            "params": [],
+            "body": {
+              "mode": "xml",
+              "json": "{\n  \"name\": \"Ricardinho\"\n}",
+              "xml": "<Notification>\n  <name>MyNotification</name>\n  <endpoint>127.0.0.1</endpoint>\n  <enabled>true</enabled>\n  <event>1</event>\n</Notification>",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "name": "Record",
+      "items": [
+        {
+          "type": "http",
+          "name": "All of Application",
+          "seq": 2,
+          "request": {
+            "url": "{{api_somiod}}/:app",
+            "method": "GET",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "somiod-locate",
+                "value": "record",
+                "enabled": true
+              }
+            ],
+            "params": [
+              {
+                "name": "app",
+                "value": "Application1",
+                "type": "path",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "All of Container",
+          "seq": 3,
+          "request": {
+            "url": "{{api_somiod}}/:app/:cont",
+            "method": "GET",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "somiod-locate",
+                "value": "record",
+                "enabled": true
+              }
+            ],
+            "params": [
+              {
+                "name": "app",
+                "value": "Application1",
+                "type": "path",
+                "enabled": true
+              },
+              {
+                "name": "cont",
+                "value": "Container1",
+                "type": "path",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "All Records",
+          "seq": 1,
+          "request": {
+            "url": "{{api_somiod}}",
+            "method": "GET",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "somiod-locate",
+                "value": "record",
+                "enabled": true
+              }
+            ],
+            "params": [],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "Delete Record",
+          "seq": 6,
+          "request": {
+            "url": "{{api_somiod}}/:app/:cont/record/:rec",
+            "method": "DELETE",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              }
+            ],
+            "params": [
+              {
+                "name": "app",
+                "value": "Application1",
+                "type": "path",
+                "enabled": true
+              },
+              {
+                "name": "cont",
+                "value": "Container1",
+                "type": "path",
+                "enabled": true
+              },
+              {
+                "name": "rec",
+                "value": "Record7",
+                "type": "path",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "Get Record",
+          "seq": 4,
+          "request": {
+            "url": "{{api_somiod}}/:app/:cont/record/:rec",
+            "method": "GET",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              }
+            ],
+            "params": [
+              {
+                "name": "app",
+                "value": "Application1",
+                "type": "path",
+                "enabled": true
+              },
+              {
+                "name": "cont",
+                "value": "Container2",
+                "type": "path",
+                "enabled": true
+              },
+              {
+                "name": "rec",
+                "value": "Record3",
+                "type": "path",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "Post Record",
+          "seq": 5,
+          "request": {
+            "url": "{{api_somiod}}",
+            "method": "POST",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/xml",
+                "enabled": true
+              },
+              {
+                "name": "Accept",
+                "value": "application/xml",
+                "enabled": true
+              }
+            ],
+            "params": [],
+            "body": {
+              "mode": "xml",
+              "json": "{\n  \"name\": \"Ricardinho\"\n}",
+              "xml": "<Record>\n  <name>MyRecord</name>\n  <content>23</content>\n</Record>",
+              "formUrlEncoded": [],
+              "multipartForm": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "activeEnvironmentUid": "E3T2VuMOcIzuk0OkAYvvo",
+  "environments": [
+    {
+      "variables": [
+        {
+          "name": "api_somiod",
+          "value": "http://localhost:{{port}}/api/somiod",
+          "enabled": true,
+          "secret": false,
+          "type": "text"
+        },
+        {
+          "name": "port",
+          "value": "52653",
+          "enabled": true,
+          "secret": false,
+          "type": "text"
+        }
+      ],
+      "name": "IS"
+    }
+  ],
+  "brunoConfig": {
+    "version": "1",
+    "name": "IS-Bruno",
+    "type": "collection",
+    "ignore": [
+      "node_modules",
+      ".git"
+    ]
+  }
+}
