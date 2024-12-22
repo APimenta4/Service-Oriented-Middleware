@@ -310,7 +310,7 @@ namespace WebApplication1.Controllers {
         #endregion
 
         #region Container
-
+        
         [HttpGet]
         [Route("{applicationName}/{containerName}")]
         public IHttpActionResult GetContainer(string applicationName, string containerName) {
@@ -1293,7 +1293,7 @@ namespace WebApplication1.Controllers {
                     throw new Exception("Error sending HTTP notification");
                 }
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return;
             }
         }
@@ -1348,7 +1348,7 @@ namespace WebApplication1.Controllers {
                 };
                 mClient.Publish(channelName, Encoding.UTF8.GetBytes(payload));
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return;
             }
         }

@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOMIOD: Service Oriented Middleware for Interoperability and Open Data</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>SOMIOD: Service Oriented Middleware</h1>
+        <p>Promoting Interoperability and Open Data</p>
+    </header>
+
+    <section class="carousel-wrapper">
+        <button class="carousel-button carousel-button-left" onclick="moveSlide(-1)">&#10094;</button>
+        <div class="carousel">
+            <div class="carousel-card">
+                <h2>Contributors</h2>
+                <ul>
+                    <li>Afonso Pimenta 2223048 - PL5</li>
+                    <li>Isa Santos 2221408 - PL1</li>
+                    <li>Ricardo Cruz 2221418 - PL5</li>
+                    <li>Tiago Garcia 2222277 - PL5</li>
+                </ul>
+            </div>
+            <div class="carousel-card">
+                <h2>API Documentation</h2>
+                <p>View our Swagger API Details:</p>
+                <a href="http://localhost:52653/swagger" class="button">View API Documentation</a>
+            </div>
+
+            <div class="carousel-card">
+                <div class="status-text">
+                    <div class="status-bubble"></div>
+                    <span>SOMIOD Status:</span><span>&nbsp;Running</span>
+                </div>
+            </div>
+        </div>
+        <button class="carousel-button carousel-button-right" onclick="moveSlide(1)">&#10095;</button>
+    </section>
+
+    <main>
+        <section>
+            <h2>Project Overview</h2>
+            <p> The aim of this project is to create a service-oriented middleware able to define an uniformization into the way data is accessed, written, and notified, independent of the application domain, to promote interoperability and open data (data is always accessed and written in the same way and applications are always created in the same way. Hence, anyone can access data and extend or create new applications and services always following the same approach). To achieve that, it is proposed the adoption of Web Services and a Web-based resource structure, always based on the open Web standards.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024/2025 IPLeiria - ESTG Integração de Sistemas - SOMIOD Project</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
