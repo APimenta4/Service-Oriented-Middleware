@@ -34,3 +34,4 @@ C:\Users\Utilizador\Desktop\IS\SOMIOD\SmartGreenhouse\obj\Debug\SmartGreenhouse.
 C:\Users\Utilizador\Desktop\IS\SOMIOD\SmartGreenhouse\obj\Debug\SmartGre.55D4EE8F.Up2Date
 C:\Users\Utilizador\Desktop\IS\SOMIOD\SmartGreenhouse\obj\Debug\SmartGreenhouse.exe
 C:\Users\Utilizador\Desktop\IS\SOMIOD\SmartGreenhouse\obj\Debug\SmartGreenhouse.pdb
+C:\Users\Utilizador\Desktop\IS\SOMIOD\SmartGreenhouse\bin\Debug\configuration.xml

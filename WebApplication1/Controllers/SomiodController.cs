@@ -700,10 +700,13 @@ namespace WebApplication1.Controllers {
             using (var command = new SqlCommand(
                 "SELECT * FROM notifications n " +
                 "JOIN containers c on n.parent = c.id " +
+                "JOIN applications a on c.parent = a.id " + 
                 "WHERE c.name = @containerName " +
+                "AND a.name = @applicationName " +
                 "AND n.event = 1 " +
                 "AND n.enabled = 1", conn)) {
                 command.Parameters.AddWithValue("@containerName", containerName);
+                command.Parameters.AddWithValue("@applicationName", applicationName);
 
                 using (var reader = command.ExecuteReader()) {
                     while (reader.Read()) {
@@ -779,10 +782,13 @@ namespace WebApplication1.Controllers {
                     using (var notificationCommand = new SqlCommand(
                         "SELECT * FROM notifications n " +
                         "JOIN containers c ON n.parent = c.id " +
+                        "JOIN applications a ON c.parent = a.id " +
                         "WHERE c.name = @containerName " +
+                        "AND a.name = @applicationName " +
                         "AND n.event = 2 " +
                         "AND n.enabled = 1", conn)) {
                         notificationCommand.Parameters.AddWithValue("@containerName", containerName);
+                        notificationCommand.Parameters.AddWithValue("@applicationName", applicationName);
 
                         using (var reader = notificationCommand.ExecuteReader()) {
                             while (reader.Read()) {

@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<notifications>
+  <notification>
+    <message>
+      <EventNotification>
+        <record>
+          <id>306</id>
+          <name>record</name>
+          <content>12</content>
+          <creation_datetime>2024-12-22T15:53:48.3433333</creation_datetime>
+          <parent>327</parent>
+        </record>
+        <event>creation</event>
+      </EventNotification>
+    </message>
+  </notification>
+  <notification>
+    <message>
+      <EventNotification>
+        <record>
+          <id>307</id>
+          <name>record</name>
+          <content>30</content>
+          <creation_datetime>2024-12-22T15:54:08.3733333</creation_datetime>
+          <parent>328</parent>
+        </record>
+        <event>creation</event>
+      </EventNotification>
+    </message>
+  </notification>
+  <notification>
+    <message>
+      <EventNotification>
+        <record>
+          <id>308</id>
+          <name>record</name>
+          <content>1200</content>
+          <creation_datetime>2024-12-22T15:54:09.6833333</creation_datetime>
+          <parent>329</parent>
+        </record>
+        <event>creation</event>
+      </EventNotification>
+    </message>
+  </notification>
+</notifications>
