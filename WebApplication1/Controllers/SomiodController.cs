@@ -27,51 +27,16 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace WebApplication1.Controllers {
 
+    // Define the API base route
     [RoutePrefix("api/somiod")]
+
+    // Exception number 2627 is raised when a unique constraint is violated
+    //     when inserting or updating a resource in the database
+    // That means we need to generate a new name for the application,
+    //     and we opted to concatenate a timestamp at the end of the resource name
 
     public class SomiodController : ApiController {
         readonly string connectionString = WebApplication1.WebApiApplication.connectionString;
-        SqlConnection conn = null;
-
-        #region -- Notas --
-
-        // Os métodos POST e Locate (<somiod-locate>, que no fundo é um GET com um header adicional) devem apontar para a "parent resource"
-        // Os métodos GET, PUT e DELETE devem apontar para a própria resource
-
-        // Quando se apaga algum recurso, a BD imediatamente apaga todos os recursos filhos
-
-        // Nomes alternativos gerados automaticamente (quando o utilizador tenta criar um recurso com um nome já existente no seu contexto)
-        // são gerados quando se tenta fazer um POST e a BD devolve o erro 2627
-        // Exemplos:
-        // Não podem existir aplicações com nomes iguais de todo
-        // Podem existir containers com nomes iguais, desde que pertençam a aplicações diferentes
-        // Podem existir records/notifications com nomes iguais, desde que pertençam a containers diferentes
-
-        // Records e notifications não devem suportar PUT
-
-        // Segundo o stor, quando se envia pedidos XML, tem-se que mandar os campos todos (mesmo que usemos id's e creation_datetime internos (??)
-        // Não percebo o fim disto, mas foi o que ele disse
-
-        // Como temos o RoutePrefix("api/somiod"), não é necessário colocar "api/somiod" em cada Route
-
-        // O url para notifications é /notif
-
-        // Para POSTs e PUTs dentro de um container deve ser mandado um res-type a dizer se é record ou notification
-        // Ouvi outro grupo a falar com o professor e a dizer que também se pode ver se é um ou outro pelo XML e XSD, ele disse que "podia valorizar"
-
-        // A professora disse que o name devia ser único no seu contexto, o professor disse que devia ser globamente único
-        // Ele disse que podia ser assim porque nas operações de discover podem aparecer nomes iguais
-        // Atualmente está implementado como a professora disse,
-        // ou deixamos estar e justificamos no relatório
-        // ou fazemos como o professor quer
-        // Acho que faz mais sentido deixar
-
-        // O professor disse que podíamos fazer extras
-        // Como por exemplo o UPDATE notifications, que no enunciado está incompleto
-        // No enunciado diz que não se pode dar update às notifications, mas elas têm de ter um campo "enabled"
-        // Eu nas notificações já faço a validação se a notificação está "enabled", por isso é só mesmo fazer o método PUT
-
-        #endregion
 
         #region Funcões Auxiliares
 
@@ -124,7 +89,7 @@ namespace WebApplication1.Controllers {
         [Route("{applicationName}")]
         public IHttpActionResult GetApplication(string applicationName) {
 
-            // Get resouces using header "somiod-locate: <resouce>"
+            // Get resources names using header "somiod-locate: <resource>"
             if (Request.Headers.Contains("somiod-locate")) {
                 return GetResourcesByHeader(applicationName);
             }
@@ -164,36 +129,36 @@ namespace WebApplication1.Controllers {
         [Route()]
         public IHttpActionResult PostApplication([FromBody] XmlDocument xmlData) {
             try {
-                // applicationName com o paramentro do url e o xmlData com o body que esta a ser enviado(onde mandamos o novo modelo)
+               
                 if (xmlData == null) {
                     return BadRequest("Invalid application data.");
                 }
 
-                // Validas o XML enviado no body com o XSD
+                // Validate incoming XML data against the appropriate XSD schema
                 string xsdPath = HttpContext.Current.Server.MapPath("~/App_Data/ApplicationSchema.xsd");
                 if (!ValidateXmlAgainstSchema(xmlData, xsdPath)) {
                     return BadRequest("Invalid XML data format.");
                 }
 
-                // passas o XML para o modelo Application
+                // Deserialize XML data to model
                 Models.Application newApplication;
                 XmlSerializer xmlSerializer = new XmlSerializer(typeof(Models.Application));
                 using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement)) {
                     newApplication = (Models.Application)xmlSerializer.Deserialize(xmlNodeReader);
                 }
 
-                // Acrecentas os valores que o sistema coloca
                 newApplication.creation_datetime = DateTime.Now;
 
                 using (var connection = new SqlConnection(connectionString)) {
                     connection.Open();
-                    // tenta inserir na BD uma nova aplicação
                     try {
                         return CreateApplication(newApplication, connection);
                     }
 
                     catch (SqlException e) when (e.Number == 2627) {
-                        // Add timestamp in model name 
+                        // Exception number 2627 is raised when a unique constraint is violated
+                        // That means we need to generate a new name for the application
+                        // So we add a timestamp to the resource name
                         newApplication.name = GenerateTimestampName(newApplication.name);
                         return CreateApplication(newApplication, connection);
                     }
@@ -226,7 +191,7 @@ namespace WebApplication1.Controllers {
                     return BadRequest("Invalid application data.");
                 }
 
-                // Validate the XML data against the XSD schema
+                // Validate the incoming XML data against the appropriate XSD schema
                 string xsdPath = HttpContext.Current.Server.MapPath("~/App_Data/ApplicationSchema.xsd");
                 if (!ValidateXmlAgainstSchema(xmlData, xsdPath)) {
                     return BadRequest("Invalid XML data format.");
@@ -239,14 +204,12 @@ namespace WebApplication1.Controllers {
                     updatedApplication = (Models.Application)xmlSerializer.Deserialize(xmlNodeReader);
                 }
 
-                // Update model
                 using (var conn = new SqlConnection(connectionString)) {
                     conn.Open();
                     try {
                         return UpdateApplication(applicationName, updatedApplication, conn);
                     }
                     catch (SqlException e) when (e.Number == 2627) {
-                        // Add timestamp in model name 
                         updatedApplication.name = GenerateTimestampName(updatedApplication.name);
                         return UpdateApplication(applicationName, updatedApplication, conn);
                     }
@@ -315,7 +278,7 @@ namespace WebApplication1.Controllers {
         [Route("{applicationName}/{containerName}")]
         public IHttpActionResult GetContainer(string applicationName, string containerName) {
 
-            // Get resouces using header "somiod-locate: <resouce>"
+            // Get resources names using header "somiod-locate: <resource>"
             if (Request.Headers.Contains("somiod-locate")) {
                 return GetResourcesByHeader(applicationName, containerName);
             }
@@ -356,41 +319,36 @@ namespace WebApplication1.Controllers {
             }
         }
 
-
         [HttpPost]
         [Route("{applicationName}")]
         public IHttpActionResult PostContainer(string applicationName, [FromBody] XmlDocument xmlData) {
-            try {
-                // containerName com o paramentro do url e o xmlData com o body que esta a ser enviado(onde mandamos o novo modelo)
+            try {               
                 if (xmlData == null) {
                     return BadRequest("Invalid application data.");
                 }
 
-                // Validas o XML enviado no body com o XSD
+                // Validate the incoming XML data against the appropriate XSD schema
                 string xsdPath = HttpContext.Current.Server.MapPath("~/App_Data/ContainerSchema.xsd");
                 if (!ValidateXmlAgainstSchema(xmlData, xsdPath)) {
                     return BadRequest("Invalid XML data format.");
                 }
 
-                // passas o XML para o modelo Container
+                // Deserialize XML data to model
                 Models.Container newContainer;
                 XmlSerializer xmlSerializer = new XmlSerializer(typeof(Models.Container));
                 using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement)) {
                     newContainer = (Models.Container)xmlSerializer.Deserialize(xmlNodeReader);
                 }
 
-                // Acrecentas os valores que o sistema coloca
                 newContainer.creation_datetime = DateTime.Now;
 
                 using (var connection = new SqlConnection(connectionString)) {
                     connection.Open();
-                    // tenta inserir na BD uma nova aplicação
                     try {
                         return CreateContainer(applicationName, newContainer, connection);
                     }
 
                     catch (SqlException e) when (e.Number == 2627) {
-                        // Add timestamp in model name 
                         newContainer.name = GenerateTimestampName(newContainer.name);
                         return CreateContainer(applicationName, newContainer, connection);
                     }
@@ -401,7 +359,6 @@ namespace WebApplication1.Controllers {
             }
         }
 
-
         private IHttpActionResult CreateContainer(string applicationName, Container newContainer, SqlConnection conn) {
             string getApplicationIdQuery = "SELECT id FROM applications WHERE name = @applicationName";
             int applicationId;
@@ -409,15 +366,13 @@ namespace WebApplication1.Controllers {
                 getCommand.Parameters.AddWithValue("@applicationName", applicationName);
                 object result = getCommand.ExecuteScalar();
                 if (result == null) {
-                    return NotFound(); // Return 404 if the application name is not found
+                    return NotFound(); 
                 }
                 applicationId = (int)result;
             }
 
-            // Set the application ID as the parent of the new container
             newContainer.parent = applicationId;
 
-            // Query to insert the new container
             string sqlQuery = @"INSERT INTO containers (name, creation_datetime, parent) OUTPUT INSERTED.id 
                         VALUES (@name, @creation_datetime, @parent)";
 
@@ -431,7 +386,6 @@ namespace WebApplication1.Controllers {
             return Created("", newContainer);
         }
 
-
         [HttpPut]
         [Route("{applicationName}/{containerName}")]
         public IHttpActionResult PutContainer(string applicationName, string containerName, [FromBody] XmlDocument xmlData) {
@@ -440,7 +394,7 @@ namespace WebApplication1.Controllers {
                     return BadRequest("Invalid container data.");
                 }
 
-                // Validate the XML data against the XSD schema
+                // Validate the incoming XML data against the appropriate XSD schema
                 string xsdPath = HttpContext.Current.Server.MapPath("~/App_Data/ContainerSchema.xsd");
                 if (!ValidateXmlAgainstSchema(xmlData, xsdPath)) {
                     return BadRequest("Invalid XML data format.");
@@ -453,14 +407,12 @@ namespace WebApplication1.Controllers {
                     updatedContainer = (Container)xmlSerializer.Deserialize(xmlNodeReader);
                 }
 
-                // Update model
                 using (var conn = new SqlConnection(connectionString)) {
                     conn.Open();
                     try {
                         return UpdateContainer(applicationName, containerName, updatedContainer, conn);
                     }
                     catch (SqlException e) when (e.Number == 2627) {
-                        // Add timestamp in model name 
                         updatedContainer.name = GenerateTimestampName(updatedContainer.name);
                         return UpdateContainer(applicationName, containerName, updatedContainer, conn);
                     }
@@ -531,6 +483,232 @@ namespace WebApplication1.Controllers {
 
         #endregion
 
+        #region Handle POST Requests (Records/Notifications)
+
+        // This endpoint handles both record and notification POST requests
+        // This happens because the endpoint is the same for both resources
+        // So we need to determine the resource type based on the XML content (if it can be validated)
+        [HttpPost]
+        [Route("{applicationName}/{containerName}")]
+        public IHttpActionResult PostData(string applicationName, string containerName, [FromBody] XmlDocument xmlData) {
+            try {
+                if (xmlData == null) {
+                    return BadRequest("Invalid application data.");
+                }
+
+                // Determine the appropriate schema and model based on the XML content
+                string notificationXsdPath = HttpContext.Current.Server.MapPath("~/App_Data/NotificationSchema.xsd");
+                string recordXsdPath = HttpContext.Current.Server.MapPath("~/App_Data/RecordSchema.xsd");
+
+                if (ValidateXmlAgainstSchema(xmlData, recordXsdPath)) {
+                    return HandleRecord(applicationName, containerName, xmlData);
+                }
+                else if (ValidateXmlAgainstSchema(xmlData, notificationXsdPath)) {
+                    return HandleNotification(applicationName, containerName, xmlData);
+                }
+                else {
+                    return BadRequest("Invalid XML data format.");
+                }
+            }
+            catch (Exception) {
+                return InternalServerError();
+            }
+        }
+
+        private IHttpActionResult HandleRecord(string applicationName, string containerName, XmlDocument xmlData) {
+            try {
+                Models.Record newRecord;
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(Models.Record));
+                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement)) {
+                    newRecord = (Models.Record)xmlSerializer.Deserialize(xmlNodeReader);
+                }
+
+                newRecord.creation_datetime = DateTime.Now;
+
+                using (var connection = new SqlConnection(connectionString)) {
+                    connection.Open();
+                    try {
+                        return CreateRecord(applicationName, containerName, newRecord, connection);
+                    }
+                    catch (SqlException e) when (e.Number == 2627) {
+                        newRecord.name = GenerateTimestampName(newRecord.name);
+                        return CreateRecord(applicationName, containerName, newRecord, connection);
+                    }
+                }
+            }
+            catch (Exception) {
+                return InternalServerError();
+            }
+        }
+
+        private IHttpActionResult CreateRecord(string applicationName, string containerName, Models.Record newRecord, SqlConnection conn) {
+            string getApplicationIdQuery = "SELECT id FROM applications WHERE name = @applicationName";
+            int applicationId;
+
+            using (var getCommand = new SqlCommand(getApplicationIdQuery, conn)) {
+                getCommand.Parameters.AddWithValue("@applicationName", applicationName);
+                object result = getCommand.ExecuteScalar();
+                if (result == null) {
+                    return NotFound();
+                }
+                applicationId = (int)result;
+            }
+
+            string getContainerIdQuery = "SELECT id FROM containers WHERE name = @containerName AND parent = @applicationId";
+            int containerId;
+
+            using (var getCommand = new SqlCommand(getContainerIdQuery, conn)) {
+                getCommand.Parameters.AddWithValue("@containerName", containerName);
+                getCommand.Parameters.AddWithValue("@applicationId", applicationId);
+                object result = getCommand.ExecuteScalar();
+                if (result == null) {
+                    return NotFound();
+                }
+                containerId = (int)result;
+            }
+
+            // Set the container ID as the parent for the new record
+            newRecord.parent = containerId;
+
+            string sqlQuery = @"INSERT INTO records (name, content, creation_datetime, parent) OUTPUT INSERTED.id 
+                        VALUES (@name, @content, @creation_datetime, @parent)";
+
+            using (var command = new SqlCommand(sqlQuery, conn)) {
+                command.Parameters.AddWithValue("@name", newRecord.name);
+                command.Parameters.AddWithValue("@content", newRecord.content);
+                command.Parameters.AddWithValue("@creation_datetime", newRecord.creation_datetime);
+                command.Parameters.AddWithValue("@parent", newRecord.parent);
+                newRecord.id = (int)command.ExecuteScalar();
+            }
+
+            // Fetch the newly inserted record
+            Record newRecordInserted = null; // This will hold the record details including database alterations
+            string selectQuery = "SELECT * FROM records WHERE id = @id";
+
+            using (var command = new SqlCommand(selectQuery, conn)) {
+                command.Parameters.AddWithValue("@id", newRecord.id);
+                using (var reader = command.ExecuteReader()) {
+                    if (reader.Read()) {
+                        newRecordInserted = new Record {
+                            id = (int)reader["id"],
+                            name = (string)reader["name"],
+                            content = (string)reader["content"],
+                            creation_datetime = (DateTime)reader["creation_datetime"],
+                            parent = (int)reader["parent"]
+                        };
+                    }
+                }
+            }
+
+            // Notifications
+            using (var command = new SqlCommand(
+                "SELECT * FROM notifications n " +
+                "JOIN containers c on n.parent = c.id " +
+                "JOIN applications a on c.parent = a.id " +
+                "WHERE c.name = @containerName " +
+                "AND a.name = @applicationName " +
+                "AND n.event = 1 " +
+                "AND n.enabled = 1", conn)) {
+                command.Parameters.AddWithValue("@containerName", containerName);
+                command.Parameters.AddWithValue("@applicationName", applicationName);
+
+                using (var reader = command.ExecuteReader()) {
+                    while (reader.Read()) {
+                        Console.WriteLine("Notification: " + reader["name"]);
+                        EventNotification eventNotification = new EventNotification {
+                            record = newRecordInserted,
+                            @event = "creation"
+                        };
+                        // HTTP
+                        if (((string)reader["endpoint"]).StartsWith("http://")) {
+                            SendHTTPNotification((string)reader["endpoint"], eventNotification);
+                        }
+                        // MQTT
+                        else {
+                            string channelName = "api/somiod/" + applicationName + "/" + containerName;
+                            SendMQTTNotification(channelName, (string)reader["endpoint"], eventNotification);
+                        }
+                    }
+                }
+            }
+            return Created("", newRecord);
+        }
+
+        private IHttpActionResult HandleNotification(string applicationName, string containerName, XmlDocument xmlData) {
+            try {
+                Models.Notification newNotification;
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(Models.Notification));
+                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement)) {
+                    newNotification = (Models.Notification)xmlSerializer.Deserialize(xmlNodeReader);
+                }
+
+                newNotification.creation_datetime = DateTime.Now;
+
+                using (var connection = new SqlConnection(connectionString)) {
+                    connection.Open();
+                    try {
+                        return CreateNotification(applicationName, containerName, newNotification, connection);
+                    }
+                    catch (SqlException e) when (e.Number == 2627) {
+                        newNotification.name = GenerateTimestampName(newNotification.name);
+                        return CreateNotification(applicationName, containerName, newNotification, connection);
+                    }
+                }
+            }
+            catch (Exception) {
+                return InternalServerError();
+            }
+        }
+
+        private IHttpActionResult CreateNotification(String applicationName, String containerName, Models.Notification newNotification, SqlConnection conn) {
+            string getApplicationIdQuery = "SELECT id FROM applications WHERE name = @applicationName";
+            int applicationId;
+
+            using (var getCommand = new SqlCommand(getApplicationIdQuery, conn)) {
+                getCommand.Parameters.AddWithValue("@applicationName", applicationName);
+                object result = getCommand.ExecuteScalar();
+                if (result == null) {
+                    return NotFound();
+                }
+                applicationId = (int)result;
+            }
+
+            string getContainerIdQuery = "SELECT id FROM containers WHERE name = @containerName AND parent = @applicationId";
+            int containerId;
+
+            using (var getCommand = new SqlCommand(getContainerIdQuery, conn)) {
+                getCommand.Parameters.AddWithValue("@containerName", containerName);
+                getCommand.Parameters.AddWithValue("@applicationId", applicationId);
+                object result = getCommand.ExecuteScalar();
+                if (result == null) {
+                    return NotFound();
+                }
+                containerId = (int)result;
+            }
+
+            // Set the container ID as the parent for the new notification
+            newNotification.parent = containerId;
+
+
+            string sqlQuery = @"INSERT INTO notifications (name, creation_datetime, parent, event, endpoint, enabled) OUTPUT INSERTED.id 
+                                VALUES (@name, @creation_datetime, @parent, @event, @endpoint, @enabled)";
+
+            using (var command = new SqlCommand(sqlQuery, conn)) {
+                command.Parameters.AddWithValue("@name", newNotification.name);
+                command.Parameters.AddWithValue("@creation_datetime", newNotification.creation_datetime);
+                command.Parameters.AddWithValue("@parent", newNotification.parent);
+                command.Parameters.AddWithValue("@event", newNotification.@event);
+                command.Parameters.AddWithValue("@endpoint", newNotification.endpoint);
+                command.Parameters.AddWithValue("@enabled", newNotification.enabled);
+                newNotification.id = (int)command.ExecuteScalar();
+
+            }
+            return Created("", newNotification);
+        }
+
+
+        #endregion
+
         #region Record
 
         [HttpGet]
@@ -574,163 +752,7 @@ namespace WebApplication1.Controllers {
             catch (Exception) {
                 return InternalServerError();
             }
-        }
-
-        // Handles both notifications and records
-
-        [HttpPost]
-        [Route("{applicationName}/{containerName}")]
-        public IHttpActionResult PostData(string applicationName, string containerName, [FromBody] XmlDocument xmlData) {
-            try {
-                if (xmlData == null) {
-                    return BadRequest("Invalid application data.");
-                }
-
-                // Determine the appropriate schema and model based on the XML content
-                string notificationXsdPath = HttpContext.Current.Server.MapPath("~/App_Data/NotificationSchema.xsd");
-                string recordXsdPath = HttpContext.Current.Server.MapPath("~/App_Data/RecordSchema.xsd");
-
-                if (ValidateXmlAgainstSchema(xmlData, recordXsdPath))
-                {
-                    return HandleRecord(applicationName, containerName, xmlData);
-                }
-                else if (ValidateXmlAgainstSchema(xmlData, notificationXsdPath))
-                {
-                    return HandleNotification(applicationName, containerName, xmlData);
-                }
-                else {
-                    return BadRequest("Invalid XML data format.");
-                }
-            }
-            catch (Exception) {
-                return InternalServerError();
-            }
-        }
-
-        private IHttpActionResult HandleRecord(string applicationName, string containerName, XmlDocument xmlData) {
-            try {
-                Models.Record newRecord;
-                XmlSerializer xmlSerializer = new XmlSerializer(typeof(Models.Record));
-                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement)) {
-                    newRecord = (Models.Record)xmlSerializer.Deserialize(xmlNodeReader);
-                }
-
-                newRecord.creation_datetime = DateTime.Now;
-
-                using (var connection = new SqlConnection(connectionString)) {
-                    connection.Open();
-                    try {
-                        return CreateRecord(applicationName, containerName, newRecord, connection);
-                    }
-                    catch (SqlException e) when (e.Number == 2627) {
-                        newRecord.name = GenerateTimestampName(newRecord.name);
-                        return CreateRecord(applicationName, containerName, newRecord, connection);
-                    }
-                }
-            }
-            catch (Exception) {
-                return InternalServerError();
-            }
-        }
-
-
-        private IHttpActionResult CreateRecord(string applicationName, string containerName, Models.Record newRecord, SqlConnection conn) {
-            // Query to get the application ID based on applicationName
-            string getApplicationIdQuery = "SELECT id FROM applications WHERE name = @applicationName";
-            int applicationId;
-
-            using (var getCommand = new SqlCommand(getApplicationIdQuery, conn)) {
-                getCommand.Parameters.AddWithValue("@applicationName", applicationName);
-                object result = getCommand.ExecuteScalar();
-                if (result == null) {
-                    return NotFound(); // Return 404 if the application name is not found
-                }
-                applicationId = (int)result;
-            }
-
-            // Query to get the container ID based on containerName and application ID
-            string getContainerIdQuery = "SELECT id FROM containers WHERE name = @containerName AND parent = @applicationId";
-            int containerId;
-
-            using (var getCommand = new SqlCommand(getContainerIdQuery, conn)) {
-                getCommand.Parameters.AddWithValue("@containerName", containerName);
-                getCommand.Parameters.AddWithValue("@applicationId", applicationId);
-                object result = getCommand.ExecuteScalar();
-                if (result == null) {
-                    return NotFound(); // Return 404 if the container name is not found
-                }
-                containerId = (int)result;
-            }
-
-            // Set the container ID as the parent for the new record
-            newRecord.parent = containerId;
-
-            // Query to insert the new record
-            string sqlQuery = @"INSERT INTO records (name, content, creation_datetime, parent) OUTPUT INSERTED.id 
-                        VALUES (@name, @content, @creation_datetime, @parent)";
-
-            using (var command = new SqlCommand(sqlQuery, conn)) {
-                command.Parameters.AddWithValue("@name", newRecord.name);
-                command.Parameters.AddWithValue("@content", newRecord.content);
-                command.Parameters.AddWithValue("@creation_datetime", newRecord.creation_datetime);
-                command.Parameters.AddWithValue("@parent", newRecord.parent);
-                newRecord.id = (int)command.ExecuteScalar();
-            }
-
-            // Fetch the newly inserted record
-            Record newRecordInserted = null; // This will hold the record details including database alterations
-            string selectQuery = "SELECT * FROM records WHERE id = @id";
-
-            using (var command = new SqlCommand(selectQuery, conn)) {
-                command.Parameters.AddWithValue("@id", newRecord.id);
-                using (var reader = command.ExecuteReader()) {
-                    if (reader.Read()) {
-                        newRecordInserted = new Record {
-                            id = (int)reader["id"],
-                            name = (string)reader["name"],
-                            content = (string)reader["content"],
-                            creation_datetime = (DateTime)reader["creation_datetime"],
-                            parent = (int)reader["parent"]
-                        };
-                    }
-                }
-            }
-
-            // Notifications
-            using (var command = new SqlCommand(
-                "SELECT * FROM notifications n " +
-                "JOIN containers c on n.parent = c.id " +
-                "JOIN applications a on c.parent = a.id " + 
-                "WHERE c.name = @containerName " +
-                "AND a.name = @applicationName " +
-                "AND n.event = 1 " +
-                "AND n.enabled = 1", conn)) {
-                command.Parameters.AddWithValue("@containerName", containerName);
-                command.Parameters.AddWithValue("@applicationName", applicationName);
-
-                using (var reader = command.ExecuteReader()) {
-                    while (reader.Read()) {
-                        Console.WriteLine("Notification: " + reader["name"]);
-                        EventNotification eventNotification = new EventNotification {
-                            record = newRecordInserted,
-                            @event = "creation"
-                        };
-                        // HTTP
-                        if (((string)reader["endpoint"]).StartsWith("http://")) {
-                            SendHTTPNotification((string)reader["endpoint"], eventNotification);
-                        }
-                        // MQTT
-                        else {
-                            string channelName = "api/somiod/" + applicationName + "/" + containerName;
-                            SendMQTTNotification(channelName, (string)reader["endpoint"], eventNotification);
-                        }
-                    }
-                }
-            }
-            return Created("", newRecord);
-        }
-
-
+        }    
 
         [HttpDelete]
         [Route("{applicationName}/{containerName}/record/{recordName}")]
@@ -739,7 +761,7 @@ namespace WebApplication1.Controllers {
             try {
                 using (var conn = new SqlConnection(connectionString)) {
                     conn.Open();
-                    // Vai buscar à base de dados o record que vai ser apagado. Não se apaga logo porque é preciso guardar uma cópia para envinar na notificação
+                    // We don't immediately delete the record as we need a copy of it to send in the notifications
                     using (var selectCommand = new SqlCommand(
                         "SELECT r.id, r.name, r.content, r.creation_datetime, r.parent " +
                         "FROM records r " +
@@ -754,7 +776,6 @@ namespace WebApplication1.Controllers {
 
                         using (var reader = selectCommand.ExecuteReader()) {
                             if (reader.Read()) {
-                                // Guarda o record que vai ser apagado numa variável
                                 deletedRecord = new Record {
                                     id = (int)reader["id"],
                                     name = (string)reader["name"],
@@ -770,7 +791,7 @@ namespace WebApplication1.Controllers {
                         return NotFound();
                     }
 
-                    // Apaga o record
+                    // After having a copy of the record, we can delete it
                     using (var deleteCommand = new SqlCommand(
                         "DELETE FROM records " +
                         "WHERE id = @recordId", conn)) {
@@ -778,7 +799,7 @@ namespace WebApplication1.Controllers {
                         deleteCommand.ExecuteNonQuery();
                     }
 
-                    // Mandar as notificações
+                    // Notifications
                     using (var notificationCommand = new SqlCommand(
                         "SELECT * FROM notifications n " +
                         "JOIN containers c ON n.parent = c.id " +
@@ -821,8 +842,6 @@ namespace WebApplication1.Controllers {
         #endregion  
 
         #region Notification
-
-        // GET
 
         [HttpGet]
         [Route("{applicationName}/{containerName}/notif/{notificationName}")]
@@ -869,83 +888,6 @@ namespace WebApplication1.Controllers {
             }
         }
 
-        private IHttpActionResult HandleNotification(string applicationName, string containerName, XmlDocument xmlData) {
-            try {
-                Models.Notification newNotification;
-                XmlSerializer xmlSerializer = new XmlSerializer(typeof(Models.Notification));
-                using (var xmlNodeReader = new XmlNodeReader(xmlData.DocumentElement)) {
-                    newNotification = (Models.Notification)xmlSerializer.Deserialize(xmlNodeReader);
-                }
-
-                newNotification.creation_datetime = DateTime.Now;
-
-                using (var connection = new SqlConnection(connectionString)) {
-                    connection.Open();
-                    try {
-                        return CreateNotification(applicationName, containerName, newNotification, connection);
-                    }
-                    catch (SqlException e) when (e.Number == 2627) {
-                        newNotification.name = GenerateTimestampName(newNotification.name);
-                        return CreateNotification(applicationName, containerName, newNotification, connection);
-                    }
-                }
-            }
-            catch (Exception) {
-                return InternalServerError();
-            }
-        }
-
-
-        private IHttpActionResult CreateNotification(String applicationName, String containerName, Models.Notification newNotification, SqlConnection conn) {
-            // Query to get the application ID based on applicationName
-            string getApplicationIdQuery = "SELECT id FROM applications WHERE name = @applicationName";
-            int applicationId;
-
-            using (var getCommand = new SqlCommand(getApplicationIdQuery, conn)) {
-                getCommand.Parameters.AddWithValue("@applicationName", applicationName);
-                object result = getCommand.ExecuteScalar();
-                if (result == null) {
-                    return NotFound(); // Return 404 if the application name is not found
-                }
-                applicationId = (int)result;
-            }
-
-            // Query to get the container ID based on containerName and application ID
-            string getContainerIdQuery = "SELECT id FROM containers WHERE name = @containerName AND parent = @applicationId";
-            int containerId;
-
-            using (var getCommand = new SqlCommand(getContainerIdQuery, conn)) {
-                getCommand.Parameters.AddWithValue("@containerName", containerName);
-                getCommand.Parameters.AddWithValue("@applicationId", applicationId);
-                object result = getCommand.ExecuteScalar();
-                if (result == null) {
-                    return NotFound(); // Return 404 if the container name is not found
-                }
-                containerId = (int)result;
-            }
-
-            // Set the container ID as the parent for the new notification
-            newNotification.parent = containerId;
-
-
-            string sqlQuery = @"INSERT INTO notifications (name, creation_datetime, parent, event, endpoint, enabled) OUTPUT INSERTED.id 
-                                VALUES (@name, @creation_datetime, @parent, @event, @endpoint, @enabled)";
-
-            using (var command = new SqlCommand(sqlQuery, conn)) {
-                command.Parameters.AddWithValue("@name", newNotification.name);
-                command.Parameters.AddWithValue("@creation_datetime", newNotification.creation_datetime);
-                command.Parameters.AddWithValue("@parent", newNotification.parent);
-                command.Parameters.AddWithValue("@event", newNotification.@event);
-                command.Parameters.AddWithValue("@endpoint", newNotification.endpoint);
-                command.Parameters.AddWithValue("@enabled", newNotification.enabled);
-                newNotification.id = (int)command.ExecuteScalar();
-
-            }
-            return Created("", newNotification);
-        }
-
-        // DELETE
-
         [HttpDelete]
         [Route("{applicationName}/{containerName}/notif/{notificationName}")]
         public IHttpActionResult DeleteNotification(string applicationName, string containerName, string notificationName) {
@@ -982,7 +924,7 @@ namespace WebApplication1.Controllers {
 
         #region <somiod-locate> operations
 
-        // Locate on base url (/api/somiod)
+        // <somiodlocate> on base API route
         [HttpGet]
         [Route()]
         public IHttpActionResult GetResourcesByHeader() {
@@ -1009,7 +951,9 @@ namespace WebApplication1.Controllers {
 
         }
 
+        #region  <somiod-locate> Helper methods
 
+        // Called by GetResourcesByHeader() method
         #region <somiod-locate> Helper methods (Base url)
         public IHttpActionResult GetAllApplicationsNames() {
             var applicationsNames = new List<string>();
@@ -1093,6 +1037,7 @@ namespace WebApplication1.Controllers {
 
         #endregion
 
+        // Called by the Application and Container GET methods when those have a <somiod-locate> header
         #region <somiod-locate> Helper methods (Application)
 
         public IHttpActionResult GetResourcesByHeader(string applicationName) {
@@ -1278,6 +1223,8 @@ namespace WebApplication1.Controllers {
 
         #endregion
 
+        #endregion
+
         #region HTTP/MQTT Notifications
         private void SendHTTPNotification(string endpoint, EventNotification notification) {
             try {
@@ -1297,8 +1244,6 @@ namespace WebApplication1.Controllers {
                 return;
             }
         }
-
-
         public void SendMQTTNotification(string channelName, string brokerEndpoint, EventNotification notification) {
             try {
                 MqttClient mClient = new MqttClient(IPAddress.Parse(brokerEndpoint));

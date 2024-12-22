@@ -12,6 +12,7 @@ namespace WebApplication1
         public static string connectionString;
         protected void Application_Start()
         {
+            // setup database connection string
             connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["somiodDB"].ConnectionString;
             GlobalConfiguration.Configure(WebApiConfig.Register);
         }

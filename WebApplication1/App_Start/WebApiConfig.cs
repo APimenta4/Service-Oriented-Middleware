@@ -10,8 +10,9 @@ namespace WebApplication1
     {
         public static void Register(HttpConfiguration config)
         {
-            // Web API routes
+            // Enable XML formatter
             config.Formatters.XmlFormatter.UseXmlSerializer = true;
+
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
