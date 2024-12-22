@@ -38,6 +38,10 @@ namespace Sensors {
                 numericHumidityValue.Enabled = true;
                 numericTemperatureValue.Enabled = true;
                 numericLightValue.Enabled = true;
+                string sensorsApplicationName = MountApplication();
+                MountContainer(sensorsApplicationName, "Humidity");
+                MountContainer(sensorsApplicationName, "Temperature");
+                MountContainer(sensorsApplicationName, "Light");
             }
         }
 
@@ -86,6 +90,71 @@ namespace Sensors {
             }
 
         }
+
+
+        #region Helper methods
+
+        private string MountApplication() {
+            var client = new RestClient(url);
+            var request = new RestRequest();
+            request.Method = Method.Post;
+            request.AddHeader("Content-Type", "application/xml");
+            request.AddHeader("Accept", "application/xml");
+
+            // Create and append the xml
+            XmlDocument xmlDoc = new XmlDocument();
+            XmlElement applicationElement = xmlDoc.CreateElement("Application");
+            XmlElement nameElement = xmlDoc.CreateElement("name");
+            nameElement.InnerText = "Sensors";
+            applicationElement.AppendChild(nameElement);
+            xmlDoc.AppendChild(applicationElement);
+            string xmlContent = xmlDoc.OuterXml;
+            request.AddParameter("application/xml", xmlContent, ParameterType.RequestBody);
+
+            var response = client.Execute(request);
+            if (response.IsSuccessful) {
+                XmlDocument responseXml = new XmlDocument();
+                responseXml.LoadXml(response.Content);
+                XmlNode nameNode = responseXml.GetElementsByTagName("name")[0];
+                return nameNode.InnerText;
+            }
+            else {
+                throw new Exception(response.ErrorMessage);
+            }
+        }
+
+        private string MountContainer(String applicationName, String containerName) {
+            string endpoint = url + applicationName;
+            var client = new RestClient(endpoint);
+            var request = new RestRequest();
+            request.Method = Method.Post;
+            request.AddHeader("Content-Type", "application/xml");
+            request.AddHeader("Accept", "application/xml");
+
+            // Create and append the xml
+            XmlDocument xmlDoc = new XmlDocument();
+            XmlElement containerElement = xmlDoc.CreateElement("Container");
+            XmlElement nameElement = xmlDoc.CreateElement("name");
+            nameElement.InnerText = containerName;
+            containerElement.AppendChild(nameElement);
+            xmlDoc.AppendChild(containerElement);
+            string xmlContent = xmlDoc.OuterXml;
+            request.AddParameter("application/xml", xmlContent, ParameterType.RequestBody);
+
+            var response = client.Execute(request);
+            if (response.IsSuccessful) {
+                XmlDocument responseXml = new XmlDocument();
+                responseXml.LoadXml(response.Content);
+                XmlNode nameNode = responseXml.GetElementsByTagName("name")[0];
+                return nameNode.InnerText;
+            }
+            else {
+                throw new Exception(response.ErrorMessage);
+            }
+        }
+
+        #endregion
+
 
 
     }

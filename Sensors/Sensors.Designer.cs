@@ -40,9 +40,9 @@
             this.buttonTemperature = new System.Windows.Forms.Button();
             this.buttonLight = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.label8 = new System.Windows.Forms.Label();
-            this.textBoxApplicatioName = new System.Windows.Forms.TextBox();
             this.buttonConfirm = new System.Windows.Forms.Button();
+            this.textBoxApplicatioName = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericHumidityValue)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericTemperatureValue)).BeginInit();
@@ -277,26 +277,6 @@
             this.panel1.Size = new System.Drawing.Size(868, 92);
             this.panel1.TabIndex = 1;
             // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("Lato", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.label8.Location = new System.Drawing.Point(7, 28);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(249, 34);
-            this.label8.TabIndex = 41;
-            this.label8.Text = "Application Name:";
-            this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // textBoxApplicatioName
-            // 
-            this.textBoxApplicatioName.Font = new System.Drawing.Font("Microsoft Sans Serif", 28.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxApplicatioName.Location = new System.Drawing.Point(273, 14);
-            this.textBoxApplicatioName.Name = "textBoxApplicatioName";
-            this.textBoxApplicatioName.Size = new System.Drawing.Size(393, 61);
-            this.textBoxApplicatioName.TabIndex = 42;
-            // 
             // buttonConfirm
             // 
             this.buttonConfirm.Font = new System.Drawing.Font("Lato", 16.2F, System.Drawing.FontStyle.Bold);
@@ -307,6 +287,26 @@
             this.buttonConfirm.Text = "Confirm";
             this.buttonConfirm.UseVisualStyleBackColor = true;
             this.buttonConfirm.Click += new System.EventHandler(this.buttonConfirm_Click);
+            // 
+            // textBoxApplicatioName
+            // 
+            this.textBoxApplicatioName.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBoxApplicatioName.Location = new System.Drawing.Point(255, 29);
+            this.textBoxApplicatioName.Name = "textBoxApplicatioName";
+            this.textBoxApplicatioName.Size = new System.Drawing.Size(413, 36);
+            this.textBoxApplicatioName.TabIndex = 42;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("Lato", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label8.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.label8.Location = new System.Drawing.Point(13, 32);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(225, 30);
+            this.label8.TabIndex = 41;
+            this.label8.Text = "Greenhouse Name:";
+            this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // Sensors
             // 
