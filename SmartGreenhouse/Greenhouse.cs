@@ -65,7 +65,11 @@ namespace SmartGreenhouse {
                 MountNotification(applicationName, temperatureContainerName, "TemperatureNotif", 1, "127.0.0.1");
                 MountNotification(applicationName, lightContainerName, "TemperatureNotif", 1, "127.0.0.1");
 
-                mqttListener = new MqttListener(this, "testeHumidade", "testeTemperatura", "testeLuz");
+                string humidityChannelName = "api/somiod/" + applicationName + "/" + humidityContainerName;
+                string temperatureChannelName = "api/somiod/" + applicationName + "/" + temperatureContainerName;
+                string lightChannelName = "api/somiod/" + applicationName + "/" + lightContainerName;
+
+                mqttListener = new MqttListener(this, humidityChannelName, temperatureChannelName, lightChannelName);
                 mqttListener.Start();
 
                 btnHistoryHumidity.Enabled = true;

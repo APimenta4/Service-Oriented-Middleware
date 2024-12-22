@@ -22,6 +22,8 @@ namespace Test_Application
         {
             InitializeComponent();
             client = new RestClient(ApiUrl);
+
+
         }
 
         private void btnRefresh_Click(object sender, EventArgs e)
@@ -110,7 +112,8 @@ namespace Test_Application
                 return;
             }
 
-            try
+
+            try 
             {
                 string url = ApiUrl + $"/{selectedApplication}";
                 var request = new RestRequest(url, Method.Delete);
